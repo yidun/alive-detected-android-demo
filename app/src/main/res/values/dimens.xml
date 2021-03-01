@@ -1,0 +1,7 @@
+<resources>
+    <dimen name="step_tv_focus_size">25dp</dimen>
+    <dimen name="step_tv_un_focus_size">25dp</dimen>
+    <dimen name="step_tv_gap">5dp</dimen>
+    <dimen name="step_tv_font_size">13sp</dimen>
+    <dimen name="tv_success_font_size">22sp</dimen>
+</resources>

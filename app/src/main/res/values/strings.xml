@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">易盾活体检测</string>
+    <string name="permission_tip">需要授予摄像头权限以及文件存储权限以便正常使用活体检测功能</string>
+</resources>

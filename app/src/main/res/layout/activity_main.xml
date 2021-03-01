@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/cameraFrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true">
+
+        <com.netease.nis.alivedetected.NISCameraPreview
+            android:id="@+id/surface_view"
+            android:layout_width="360dp"
+            android:layout_height="480dp"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/view_tip_background"
+        android:layout_width="match_parent"
+        android:layout_height="106dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="55dp"
+        android:alpha="0.75" />
+
+    <com.github.mmin18.widget.RealtimeBlurView
+        android:id="@+id/blur_view"
+        android:layout_width="match_parent"
+        android:layout_height="106dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="55dp"
+        android:visibility="visible"
+        app:realtimeBlurRadius="240dp" />
+
+    <TextView
+        android:id="@+id/tv_error_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:background="@android:color/transparent"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        tools:text="this is a test msg" />
+
+    <ImageView
+        android:id="@+id/face_outline"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/alive_bg" />
+
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <ImageButton
+            android:id="@+id/img_btn_back"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:background="@mipmap/ico_back_2x"
+            android:scaleType="centerCrop" />
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/img_btn_back"
+            android:src="@mipmap/ico_logo_bar_blue" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="易盾活体检测"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/iv_voice"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:scaleType="fitXY"
+            android:src="@mipmap/ico_voice_open_2x" />
+        />
+    </RelativeLayout>
+
+    <com.sfyc.ctpv.CountTimeProgressView
+        android:id="@+id/pv_count_time"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/rl_title"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        app:backgroundColorCenter="@android:color/transparent"
+        app:borderBottomColor="@android:color/darker_gray"
+        app:borderDrawColor="#7C49F2"
+        app:borderWidth="2dp"
+        app:clockwise="true"
+        app:countTime="30000"
+        app:textStyle="second"
+        app:titleCenterColor="#FF222222"
+        app:titleCenterSize="13sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/gif_action"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center"
+            android:src="@mipmap/pic_front_2x" />
+        />
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/tv_step_1"
+                android:layout_width="@dimen/step_tv_focus_size"
+                android:layout_height="@dimen/step_tv_focus_size"
+                android:layout_margin="@dimen/step_tv_gap"
+                android:background="@drawable/circle_tv_focus"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="#FFFFFFFF"
+                android:textSize="@dimen/step_tv_font_size" />
+
+            <ViewStub
+                android:id="@+id/vs_step_2"
+                android:layout_width="@dimen/step_tv_un_focus_size"
+                android:layout_height="@dimen/step_tv_un_focus_size"
+                android:layout_margin="@dimen/step_tv_gap"
+                android:inflatedId="@+id/tv_step_2"
+                android:layout="@layout/layout_tv_step" />
+
+            <ViewStub
+                android:id="@+id/vs_step_3"
+                android:layout_width="@dimen/step_tv_un_focus_size"
+                android:layout_height="@dimen/step_tv_un_focus_size"
+                android:layout_margin="@dimen/step_tv_gap"
+                android:inflatedId="@+id/tv_step_3"
+                android:layout="@layout/layout_tv_step" />
+
+            <ViewStub
+                android:id="@+id/vs_step_4"
+                android:layout_width="@dimen/step_tv_un_focus_size"
+                android:layout_height="@dimen/step_tv_un_focus_size"
+                android:layout_margin="@dimen/step_tv_gap"
+                android:inflatedId="@+id/tv_step_4"
+                android:layout="@layout/layout_tv_step" />
+        </android.support.v7.widget.LinearLayoutCompat>
+    </LinearLayout>
+</RelativeLayout>

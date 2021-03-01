@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/step_tv_un_focus_size"
+    android:layout_height="@dimen/step_tv_un_focus_size"
+    android:layout_margin="@dimen/step_tv_gap"
+    android:background="@drawable/circle_tv_un_focus"
+    android:gravity="center"
+    android:textColor="#FFFFFFFF"
+    android:textSize="@dimen/step_tv_font_size" />
+
