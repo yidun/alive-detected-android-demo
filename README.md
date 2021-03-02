@@ -36,6 +36,8 @@ implementation 'com.google.code.gson:gson:2.8.5'              // 添加对gson�
 
 - void stopDetect()：关闭检测
 
+- void destroy():释放资源
+
 - void setTimeOut(long timeout)：设置检测超时时间，单位ms，默认为2min
 
 - void setDebugMode(boolean isDebug)：设置是否开启调试模式，默认关闭
