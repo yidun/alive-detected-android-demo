@@ -4,7 +4,9 @@
 
 ## 一、SDK集成
 
-### 1.1 从2.2.2.1版本开始，提供远程依赖的方式，本地依赖的方式逐步淘汰。原先以本地依赖集成的想尝试远程依赖请先去除干净本地包，避免重复依赖冲突
+### 方式一 
+
+#### 从2.2.2.1版本开始，提供远程依赖的方式，本地依赖的方式逐步淘汰。原先以本地依赖集成的想尝试远程依赖请先去除干净本地包，避免重复依赖冲突
 确认androidstudio的Project根目录的主gradle中配置了 mavenCentral 支持
 
 ```
@@ -25,13 +27,15 @@
 ```
 在对应module的gradle 中添加依赖
 ```
-implementation 'io.github.yidun:quicklogin:2.2.2.1'
+implementation 'io.github.yidun:livedetect:2.2.2.1'
 ```
 
-### 1.2、获取SDK
+### 方式二
+
+#### 获取SDK
 从易盾官网下载活体检测sdk的aar包
 
-### 1.2 添加aar包依赖
+#### 添加aar包依赖
 将获取的sdk的aar文件放到工程中的libs文件夹下，然后在app的build.gradle文件中增加如下代码
 ```
 repositories {
