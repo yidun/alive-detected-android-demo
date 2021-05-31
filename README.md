@@ -27,7 +27,7 @@
 ```
 在对应module的gradle 中添加依赖
 ```
-implementation 'io.github.yidun:livedetect:2.2.4'
+implementation 'io.github.yidun:livedetect:2.2.4.1'
 ```
 
 ### 方式二
