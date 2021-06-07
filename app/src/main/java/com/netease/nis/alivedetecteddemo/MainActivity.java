@@ -8,6 +8,7 @@ import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
@@ -37,7 +38,6 @@ public class MainActivity extends Activity {
     private final String TAG = "AliveDetector";
     private ViewStub vsStep2, vsStep3, vsStep4;
     private TextView tvStateTip, tvErrorTip, tvStep1, tvStep2, tvStep3, tvStep4;
-    private ImageButton imgBtnBack;
     private ImageView ivVoice;
     private GifImageView givAction;
     private CountTimeProgressView mCountTimeView;
@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
     @Override
     public void onDestroy() {
         Util.setWindowBrightness(this, WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE);
-        if(isFinishing()){
+        if (isFinishing()) {
             if (mAliveDetector != null) {
                 mAliveDetector.stopDetect();
                 mAliveDetector.destroy();
@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
         vsStep3 = findViewById(R.id.vs_step_3);
         vsStep4 = findViewById(R.id.vs_step_4);
         givAction = findViewById(R.id.gif_action);
-        imgBtnBack = findViewById(R.id.img_btn_back);
+        ImageButton imgBtnBack = findViewById(R.id.img_btn_back);
         imgBtnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -219,11 +219,7 @@ public class MainActivity extends Activity {
 //                            break;
                     }
                 } else {
-                    if (actionType == ACTION_ERROR) {
-                        setTipText(stateTip, true);
-                    } else {
-                        setTipText(stateTip, false);
-                    }
+                    setTipText(stateTip, actionType == ACTION_ERROR);
                 }
             }
 
@@ -306,7 +302,7 @@ public class MainActivity extends Activity {
         for (ActionType actionType : actionCommands) {
             commands.append(actionType.getActionID());
         }
-        return commands == null ? "" : commands.toString();
+        return TextUtils.isEmpty(commands.toString()) ? "" : commands.toString();
     }
 
     private void showIndicatorOnUiThread(final int commandLength) {
@@ -374,12 +370,18 @@ public class MainActivity extends Activity {
         mCurrentCheckStepIndex = 0;
         mCurrentActionType = ActionType.ACTION_STRAIGHT_AHEAD;
         tvStep1.setText("1");
-        tvStep2.setText("");
-        tvStep3.setText("");
-        tvStep4.setText("");
-        setTextViewUnFocus(tvStep2);
-        setTextViewUnFocus(tvStep3);
-        setTextViewUnFocus(tvStep4);
+        if (tvStep2 != null && tvStep2.getVisibility() == View.VISIBLE) {
+            tvStep2.setText("");
+            setTextViewUnFocus(tvStep2);
+        }
+        if (tvStep3 != null && tvStep3.getVisibility() == View.VISIBLE) {
+            tvStep3.setText("");
+            setTextViewUnFocus(tvStep3);
+        }
+        if (tvStep4 != null && tvStep4.getVisibility() == View.VISIBLE) {
+            tvStep4.setText("");
+            setTextViewUnFocus(tvStep4);
+        }
     }
 
     private void resetGif() {

@@ -11,8 +11,6 @@ import android.widget.ImageButton;
  * Created by hzhuqi on 2019/10/14
  */
 public class SuccessActivity extends Activity {
-    private ImageButton imgBtnBack;
-    private Button btnBackToDemo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +21,7 @@ public class SuccessActivity extends Activity {
 
 
     private void initView() {
-        btnBackToDemo = findViewById(R.id.btn_back_to_demo);
+        Button btnBackToDemo = findViewById(R.id.btn_back_to_demo);
         btnBackToDemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -31,7 +29,7 @@ public class SuccessActivity extends Activity {
                 startActivity(intent);
             }
         });
-        imgBtnBack = findViewById(R.id.img_btn_back);
+        ImageButton imgBtnBack = findViewById(R.id.img_btn_back);
         imgBtnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
