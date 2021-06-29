@@ -191,10 +191,16 @@ mAliveDetector.setDetectedListener(new DetectedListener() {
 
             @Override
             public void onStateTipChanged(ActionType actionType, String stateTip) {
+                //单步提示
                 Log.d(TAG, "actionType:" + actionType.getActionTip() + " stateTip:" + actionType);
                 setTipText(stateTip);
             }
-
+            
+             @Override
+            public void onCheck() {
+               //本地检测通过，提交云端检测
+            }
+            
             @Override
             public void onPassed(boolean isPassed, String token) {
                 if (isPassed) {
