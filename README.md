@@ -108,6 +108,11 @@ public interface DetectedListener {
      */
     void onPassed(boolean isPassed, String token);
 
+    @Override
+    public void onCheck() {
+     //本地检测通过，提交云端检测
+    }
+    
     /**
      * 活体检测过程中出现错误时回调
      *
@@ -196,7 +201,7 @@ mAliveDetector.setDetectedListener(new DetectedListener() {
                 setTipText(stateTip);
             }
             
-             @Override
+            @Override
             public void onCheck() {
                //本地检测通过，提交云端检测
             }
