@@ -7,7 +7,6 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +16,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import com.github.mmin18.widget.RealtimeBlurView;
 import com.netease.nis.alivedetected.ActionType;

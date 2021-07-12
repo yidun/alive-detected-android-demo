@@ -70,7 +70,7 @@
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="40dp"
@@ -104,7 +104,7 @@
             android:text="复制"
             android:textColor="#FF2C6EFF"
             android:textSize="14sp" />
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
 
 </LinearLayout>

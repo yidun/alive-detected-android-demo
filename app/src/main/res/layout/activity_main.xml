@@ -144,7 +144,7 @@
             android:src="@mipmap/pic_front_2x" />
         />
 
-        <android.support.v7.widget.LinearLayoutCompat
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center">
@@ -183,6 +183,6 @@
                 android:layout_margin="@dimen/step_tv_gap"
                 android:inflatedId="@+id/tv_step_4"
                 android:layout="@layout/layout_tv_step" />
-        </android.support.v7.widget.LinearLayoutCompat>
+        </androidx.appcompat.widget.LinearLayoutCompat>
     </LinearLayout>
 </RelativeLayout>
