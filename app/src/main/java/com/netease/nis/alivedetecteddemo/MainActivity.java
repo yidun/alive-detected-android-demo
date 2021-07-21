@@ -1,12 +1,14 @@
 package com.netease.nis.alivedetecteddemo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -16,9 +18,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import androidx.core.content.ContextCompat;
-
 import com.github.mmin18.widget.RealtimeBlurView;
 import com.netease.nis.alivedetected.ActionType;
 import com.netease.nis.alivedetected.AliveDetector;
@@ -67,6 +66,7 @@ public class MainActivity extends Activity {
     private ActionType[] mActions;
     private boolean isOpenVoice = true;
     private MediaPlayer mPlayer = new MediaPlayer();
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +79,17 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (progressDialog != null) {
+            if (progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+        }
     }
 
     @Override
@@ -110,7 +121,9 @@ public class MainActivity extends Activity {
     }
 
     private void initView() {
-        mCameraPreview = (NISCameraPreview) findViewById(R.id.surface_view);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("云端检测中");
+        mCameraPreview = findViewById(R.id.surface_view);
         mCameraPreview.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         tvStateTip = findViewById(R.id.tv_tip);
         tvErrorTip = findViewById(R.id.tv_error_tip);
@@ -215,9 +228,6 @@ public class MainActivity extends Activity {
                         case ACTION_ERROR:
                             setTipText(stateTip, true);
                             break;
-//                        case ACTION_PASSED:
-//                            setTipText(stateTip);
-//                            break;
                     }
                 } else {
                     setTipText(stateTip, actionType == ACTION_ERROR);
@@ -226,6 +236,9 @@ public class MainActivity extends Activity {
 
             @Override
             public void onPassed(boolean isPassed, String token) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
                 if (isPassed) {
                     Log.d(TAG, "活体检测通过,token is:" + token);
                     finish();
@@ -238,7 +251,27 @@ public class MainActivity extends Activity {
             }
 
             @Override
+            public void onCheck() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isFinishing()) {
+                            progressDialog.show();
+                        }
+                    }
+                });
+            }
+
+            @Override
             public void onError(int code, String msg, String token) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+                    }
+                });
                 Log.e(TAG, "listener [onError] 活体检测出错,原因:" + msg + " token:" + token);
                 jump2FailureActivity(token);
             }

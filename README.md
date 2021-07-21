@@ -1,78 +1,228 @@
-活体检测接入文档
+# 活体检测
+根据提示做出相应动作，SDK 实时采集动态信息，判断用户是否为活体、真人
 
+## 兼容性
+| 条目        | 说明                                                                      |
+| ----------- | -----------------------------------------------------------------------  |
+| 适配版本    | minSdkVersion 15 及以上版本                                                 |
+| cpu 架构    | 内部提供了 armeabi-v7a 和 arm64-v8a 两种 so ，对于不兼容 arm 的 x86 机型不适配 |
 
+## 资源引入
 
-## 一、SDK集成
+### 远程仓库依赖(推荐)
+从 2.2.2 版本开始，提供远程依赖的方式，本地依赖的方式逐步淘汰。本地依赖集成替换为远程依赖请先去除干净本地包，避免重复依赖冲突
 
-### 方式一 
-
-#### 从2.2.3.1版本开始，提供远程依赖的方式，本地依赖的方式逐步淘汰。原先以本地依赖集成的想尝试远程依赖请先去除干净本地包，避免重复依赖冲突
-确认androidstudio的Project根目录的主gradle中配置了 mavenCentral 支持
+确认 Project 根目录的 build.gradle 中配置了 mavenCentral 支持
 
 ```
- buildscript {
-            repositories {
-                jcenter()
-                mavenCentral()
-            }
-            ......
-        }
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    ...
+}
 
-        allprojects {
-            repositories {
-                jcenter()
-                mavenCentral()
-            }
-        }
-```
-在对应module的gradle 中添加依赖
-```
-implementation 'io.github.yidun:livedetect:3.0.0.1'
-```
-
-### 方式二
-
-#### 获取SDK
-从易盾官网下载活体检测sdk的aar包
-
-#### 添加aar包依赖
-将获取的sdk的aar文件放到工程中的libs文件夹下，然后在app的build.gradle文件中增加如下代码
-```
-repositories {
-    flatDir {
-        dirs 'libs'
+allprojects {
+    repositories {
+        mavenCentral()
     }
 }
 ```
-在dependencies依赖中增加对aar包的引用
+在对应 module 的 build.gradle 中添加依赖
+
 ```
-implementation(name:'alive_detected_libary', ext: 'aar')      // aar名称和版本号以下载下来的最新版为准
-implementation(name: 'openCVLibrary343-release', ext: 'aar')  // 添加对OpenCV库的依赖
-implementation 'com.squareup.okhttp3:okhttp:3.3.1'            // 添加对okHttp的依赖
-implementation 'com.google.code.gson:gson:2.8.5'              // 添加对gson的依赖
+implementation 'io.github.yidun:livedetect:3.0.1'
 ```
-## 二、SDK接口
-### 1）活体检测功能提供类：AliveDetector
-- getInstance()：获取AliveDetector单例对象
+### 本地手动依赖
 
-- init(Context context, NISCameraPreview cameraPreview, String businessId) ：初始化，第一个参数是Context对象，第2个参数为相机预览View，第三个参数为从易盾官网申请的业务id
+#### 获取 SDK 
 
-- void setDetectedListener(DetectedListener detectedListener)：设置回调监听器
+从易盾官网下载活体检测 sdk 的 aar 包 [包地址](https://support.dun.163.com/documents/391676076156063744?docId=391718656914821120)
 
-- void startDetect()：开始检测
+#### 添加 aar 包依赖
 
-- void stopDetect()：关闭检测
+将获取到的 aar 文件拷贝到对应 module 的 libs 文件夹下（如没有该目录需新建），然后在 build.gradle 文件中增加如下代码
 
-- void destroy()：释放资源
+```
+android{
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    } 
+}    
 
-- void setTimeOut(long timeout)：设置检测超时时间，单位ms，默认为2min
+dependencies {
+    implementation(name:'alive_detected_libary', ext: 'aar')      
+    implementation(name: 'openCVLibrary343-release', ext: 'aar')  
+    implementation 'com.squareup.okhttp3:okhttp:4.7.2'    //若项目中原本存在无需添加        
+    implementation 'com.google.code.gson:gson:2.8.6'      //若项目中原本存在无需添加          
+}
+```
 
-- void setDebugMode(boolean isDebug)：设置是否开启调试模式，默认关闭
+## 各种配置
 
-- void setSensitivity(int sensitivity)：设置检测动作灵敏度等级，可取值为 0，1，2分别表示容易通过，普通，难通过
+### 权限配置
 
+SDK 依赖如下权限
 
-### 2）活体检测检回调监听器类：DetectedListener
+```
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+CAMERA 权限是隐私权限，Android 6.0 及以上需要动态申请。使用前务必先动态申请权限
+
+```
+ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
+```
+
+### 混淆配置
+
+在 proguard-rules.pro 文件中添加如下混淆规则
+
+```
+-keep class com.netease.nis.alivedetected.entity.*{*;}
+-keep class com.netease.nis.alivedetected.AliveDetector  {
+    public <methods>;
+    public <fields>;
+}
+-keep class com.netease.nis.alivedetected.DetectedEngine{
+    native <methods>;
+}
+-keep class com.netease.nis.alivedetected.NISCameraPreview  {
+    public <methods>;
+}
+-keep class com.netease.nis.alivedetected.DetectedListener{*;}
+-keep class com.netease.nis.alivedetected.ActionType{ *;}
+```
+
+## 快速调用示例
+
+### 在 layout 布局文件中使用活体检测相机预览 View
+
+#### 注意点
+
+- 为了避免在某些中低端机型上检测卡顿，建议预览控件的宽与高不要设置为全屏，过大的预览控件会导致处理的数据过大，降低检测流畅度
+- 预览宽高不要随意设置，请遵守大部分相机支持的预览宽高比，3：4 或 9：16
+
+#### 示例
+
+```
+ <com.netease.nis.alivedetected.NISCameraPreview
+            android:id="@+id/surface_view"
+            android:layout_width="360dp"
+            android:layout_height="480dp" />
+```
+
+### 在代码中调用相对应 api 开启活体检测
+
+```
+public class DemoActivity extends AppCompatActivity {
+    private AliveDetector aliveDetector;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_demo);
+
+        NISCameraPreview cameraPreview = findViewById(R.id.surface_view);
+        cameraPreview.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        aliveDetector = AliveDetector.getInstance();
+        aliveDetector.init(this, cameraPreview, "申请的业务id");
+        aliveDetector.setDetectedListener(new DetectedListener() {
+            @Override
+            public void onReady(boolean isInitSuccess) {
+
+            }
+
+            @Override
+            public void onActionCommands(ActionType[] actionTypes) {
+
+            }
+
+            @Override
+            public void onStateTipChanged(ActionType actionType, String stateTip) {
+                //单步动作 actionType.getActionID()为 0：正视前方 1：向右转头 2：向左转头 3：张嘴动作 4：眨眼动作 5：动作通过
+                6：动作错误
+            }
+
+            @Override
+            public void onPassed(boolean isPassed, String token) {
+
+            }
+
+            @Override
+            public void onError(int code, String msg, String token) {
+
+            }
+
+            @Override
+            public void onOverTime() {
+
+            }
+        });
+        aliveDetector.startDetect();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (isFinishing()) {
+            if (aliveDetector != null) {
+                aliveDetector.stopDetect();
+                aliveDetector.destroy();
+            }
+        }
+    }
+}
+```
+
+更多使用场景请参考
+[demo](https://github.com/yidun/alive-detected-android-demo)
+
+## SDK 方法说明
+
+### 1. 获取 AliveDetector 单例对象
+
+#### 代码说明
+
+```
+AliveDetector aliveDetector = AliveDetector.getInstance();
+```
+
+### 2. 初始化
+
+#### 代码说明
+
+```
+aliveDetector.init(Context context, NISCameraPreview cameraPreview, String businessId)
+```
+
+#### 参数说明
+
+|参数|类型|是否必填|默认值|描述|
+|----|----|--------|------|----|
+|context|Context|是|无| 上下文 |
+|cameraPreview|NISCameraPreview|是|无|相机预览 View |
+|businessId|String|是|无| 活体检测业务 id |
+
+### 3. 设置回调监听
+
+#### 代码说明
+
+```
+aliveDetector.setDetectedListener(DetectedListener detectedListener)
+```
+
+#### 参数说明
+
+|参数|类型|是否必填|默认值|描述|
+|----|----|--------|------|----|
+|detectedListener|DetectedListener|是|无| 监听接口 |
+
+#### DetectedListener 接口说明
+
 ```
 public interface DetectedListener {
     /**
@@ -94,8 +244,15 @@ public interface DetectedListener {
     /**
      * 活体检测状态是否改变，当引擎检测到状态改变时会回调该接口
      *
-     * @param actionType 当前动作类型，如果接入者希望替换SDK内部默认的检测状态提示文案，
-     *                   可通过该参数判断动作类型，然后替换{@code stateTip}的值即可
+     * @param actionType 当前动作类型，枚举值，总共6种类型:
+     *     ACTION_STRAIGHT_AHEAD("0", "正视前方"),
+     *     ACTION_TURN_HEAD_TO_RIGHT("1", "向右转头"),
+     *     ACTION_TURN_HEAD_TO_LEFT("2", "向左转头"),
+     *     ACTION_OPEN_MOUTH("3", "张嘴动作"),
+     *     ACTION_BLINK_EYES("4", "眨眼动作"),
+     *     ACTION_ERROR("5", "动作错误"),
+     *     ACTION_PASSED("6", "动作通过")
+     *                   
      * @param stateTip   引擎检测到的实时状态
      */
     void onStateTipChanged(ActionType actionType, String stateTip);
@@ -107,12 +264,11 @@ public interface DetectedListener {
      * @param token    此次活体检测返回的易盾token
      */
     void onPassed(boolean isPassed, String token);
-
-    @Override
-    public void onCheck() {
-     //本地检测通过，提交云端检测
-    }
-    
+    /**
+     * 活体检测本地检测通过
+     * 启动远程检测
+     */    
+    void onCheck();
     /**
      * 活体检测过程中出现错误时回调
      *
@@ -128,126 +284,68 @@ public interface DetectedListener {
 }
 ```
 
-### 3）活体检测动作序列类型枚举：ActionType
+### 4. 开始活体检测
 
-活体下发动作序列以及实时检测时返回的动作序列类型，其包含的值与对应含义如下：
-
-```
- ACTION_STRAIGHT_AHEAD("0", "正视前方"),
- ACTION_TURN_HEAD_TO_RIGHT("1", "向右转头"),
- ACTION_TURN_HEAD_TO_LEFT("2", "向左转头"),
- ACTION_OPEN_MOUTH("3", "张嘴动作"),
- ACTION_BLINK_EYES("4", "眨眼动作"),
- ACTION_ERROR("5", "动作错误"),
- ACTION_PASSED("6", "动作通过");
-```
-
-
-
-
-## 三、使用说明
-
-### 1、在xml布局文件中使用活体检测相机预览View
-**注意:**
-
-**- 为了避免在某些中低端机型上检测卡顿，建议预览控件的宽与高不要设置为全屏，过大的预览控件会导致处理的数据过大，降低检测流畅度**
-
-**- 预览宽高不要随意设置，请遵守大部分相机支持的预览宽高比，3：4或9：16**
-
-如下是个简单示例：
+#### 代码说明
 
 ```
- <com.netease.nis.alivedetected.NISCameraPreview
-        android:id="@+id/surface_view"
-        android:layout_width="360dp"
-        android:layout_height="480dp" />
+aliveDetector.startDetect()
 ```
-### 2、获取AliveDetector对象，进行初始化
 
-将前面布局中获取到的相机预览View以及从易盾官网申请的业务id传给init()接口进行初始化
-```
-mAliveDetector = AliveDetector.getInstance();
-mAliveDetector.init(this, mCameraPreview, BUSINESS_ID);
-```
-### 3、设置回调监听器，在监听器中根据相应回调做自己的业务处理
-```
-mAliveDetector.setDetectedListener(new DetectedListener() {
-            @Override
-            public void onReady(boolean isInitSuccess) {
-                if (isInitSuccess) {
-                    Log.d(TAG, "活体检测引擎初始化完成");
-                } else {
-                    //  mAliveDetector.startDetect();
-                    Log.e(TAG, "活体检测引擎初始化失败");
-                }
-            }
+### 5. 停止活体检测
 
-            /**
-             * 此次活体检测下发的待检测动作指令序列
-             *
-             * @param actionTypes
-             */
-            @Override
-            public void onActionCommands(ActionType[] actionTypes) {
-                String commands = buildActionCommand(actionTypes);
-                showToast("活体检测动作序列为:" + commands);
-                Log.e(TAG, "活体检测动作序列为:" + commands);
-            }
-
-            @Override
-            public void onStateTipChanged(ActionType actionType, String stateTip) {
-                //单步提示
-                Log.d(TAG, "actionType:" + actionType.getActionTip() + " stateTip:" + actionType);
-                setTipText(stateTip);
-            }
-            
-            @Override
-            public void onCheck() {
-               //本地检测通过，提交云端检测
-            }
-            
-            @Override
-            public void onPassed(boolean isPassed, String token) {
-                if (isPassed) {
-                    Log.d(TAG, "活体检测通过,token is:" + token);
-                    showToast("活体检测通过,token is:" + token);
-                } else {
-                    Log.e(TAG, "活体检测不通过,token is:" + token);
-                    showToast("活体检测不通过,token is:" + token);
-                }
-            }
-
-            @Override
-            public void onError(int code, String msg, String token) {
-                Log.e(TAG, "listener [onError]:" + msg);
-                showToast("活体检测出错,原因:" + msg + " token:" + token);
-            }
-
-            @Override
-            public void onOverTime() {
-                showToast("检测超时");
-            }
-
-        });
-```
-### 4、开始/停止检测
-```
-mAliveDetector.startDetect();
-mAliveDetector.stopDetect();
-```
-## 四、防混淆配置
+#### 代码说明
 
 ```
--keep class com.netease.nis.alivedetected.entity.**{*;}
--keep class com.netease.nis.alivedetected.AliveDetector  {#不会混淆类名
-    public <methods>;
-}
--keep class com.netease.nis.alivedetected.DetectedEngine{
-    native <methods>;
-}
--keep class com.netease.nis.alivedetected.NISCameraPreview  {#不会混淆类名
-    public <methods>;
-}
--keep class com.netease.nis.alivedetected.DetectedListener{*;}
--keep class com.netease.nis.alivedetected.ActionType  { *;}
+aliveDetector.stopDetect()
 ```
+
+### 6. 释放资源(建议放在 onDestroy)
+
+#### 代码说明
+
+```
+aliveDetector.destroy()
+```
+
+### 7. 是否开启调试模式(非必须)
+
+#### 代码说明
+
+```
+aliveDetector.setDebugMode(boolean isDebug)
+```
+
+#### 参数说明
+
+|参数|类型|是否必填|默认值|描述|
+|----|----|--------|------|----|
+|isDebug|boolean|是|false| 是否打印日志 |
+
+### 8. 设置检测动作灵敏度(非必须)
+
+#### 代码说明
+
+```
+aliveDetector.setSensitivity(int sensitivity)
+```
+
+#### 参数说明
+
+|参数|类型|是否必填|默认值|描述|
+|----|----|--------|------|----|
+|sensitivity|int|是|AliveDetector.SENSITIVITY_NORMAL| 可取值 AliveDetector.SENSITIVITY_EASY = 0、AliveDetector.SENSITIVITY_NORMAL = 1、AliveDetector.SENSITIVITY_HARD = 2 分别对应容易、普通、难 |
+
+### 9. 设置超时时间(非必须)
+
+#### 代码说明
+
+```
+aliveDetector.setTimeOut(long timeout)
+```
+
+#### 参数说明
+
+|参数|类型|是否必填|默认值|描述|
+|----|----|--------|------|----|
+|timeout|long|是| 120000 | 单位毫秒 |
