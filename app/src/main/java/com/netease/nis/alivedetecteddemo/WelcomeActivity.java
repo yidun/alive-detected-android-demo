@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -18,7 +19,7 @@ import pub.devrel.easypermissions.EasyPermissions;
  */
 public class WelcomeActivity extends Activity {
     private final int RC_ALL_PERM = 10000;
-    private final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private final String[] PERMISSIONS = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE};
     Button btnJumpToMainActivity;
 
     @Override
@@ -27,7 +28,7 @@ public class WelcomeActivity extends Activity {
         setContentView(R.layout.activity_welcome);
         if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+                    Manifest.permission.READ_PHONE_STATE}, 0);
         }
         btnJumpToMainActivity = findViewById(R.id.btn_jump_to_main_act);
         btnJumpToMainActivity.setOnClickListener(new View.OnClickListener() {
@@ -37,6 +38,8 @@ public class WelcomeActivity extends Activity {
                     Toast.makeText(getApplicationContext(), "您未授予相机权限，请到设置中开启权限", Toast.LENGTH_LONG).show();
                 } else if (!EasyPermissions.hasPermissions(WelcomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     Toast.makeText(getApplicationContext(), "您未授予文件存储权限，请到设置中开启权限", Toast.LENGTH_LONG).show();
+                } else if (!EasyPermissions.hasPermissions(WelcomeActivity.this, Manifest.permission.READ_PHONE_STATE)) {
+                    Toast.makeText(getApplicationContext(), "您未授予读取手机状态权限，请到设置中开启权限", Toast.LENGTH_LONG).show();
                 } else if (!Util.isNetWorkAvailable(getApplicationContext())) {
                     Toast.makeText(getApplicationContext(), "网络异常，请检查网络连接", Toast.LENGTH_LONG).show();
                 } else {
