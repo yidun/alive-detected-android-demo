@@ -68,13 +68,20 @@ dependencies {
 SDK 依赖如下权限
 
 ```
+ <uses-feature android:name="android.hardware.camera" />
+ <uses-feature android:name="android.hardware.camera.autofocus" />
+ <uses-feature android:name="android.hardware.camera.front" />
+ <uses-feature android:name="android.hardware.camera.front.autofocus" />
+    
 <uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.android.permission.READ_PHONE_STATE" />
 ```
 
-CAMERA 权限是隐私权限，Android 6.0 及以上需要动态申请。使用前务必先动态申请权限
+其中 CAMERA、WRITE_EXTERNAL_STORAGE、READ_PHONE_STATE 三个权限是隐私权限，Android 6.0 及以上需要动态申请。使用前务必先动态申请权限
 
 ```
-ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
+ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_PHONE_STATE}, 0);
 ```
 
 ### 混淆配置
