@@ -68,10 +68,10 @@ dependencies {
 SDK 依赖如下权限
 
 ```
- <uses-feature android:name="android.hardware.camera" />
- <uses-feature android:name="android.hardware.camera.autofocus" />
- <uses-feature android:name="android.hardware.camera.front" />
- <uses-feature android:name="android.hardware.camera.front.autofocus" />
+<uses-feature android:name="android.hardware.camera" />
+<uses-feature android:name="android.hardware.camera.autofocus" />
+<uses-feature android:name="android.hardware.camera.front" />
+<uses-feature android:name="android.hardware.camera.front.autofocus" />
     
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
