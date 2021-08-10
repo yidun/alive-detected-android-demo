@@ -46,6 +46,7 @@
         android:textColor="@android:color/white"
         android:textSize="15sp"
         android:textStyle="bold"
+        android:gravity="center"
         tools:text="this is a test msg" />
 
     <ImageView

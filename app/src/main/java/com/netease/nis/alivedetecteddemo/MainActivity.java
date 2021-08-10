@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.github.mmin18.widget.RealtimeBlurView;
 import com.netease.nis.alivedetected.ActionType;
 import com.netease.nis.alivedetected.AliveDetector;
@@ -28,6 +29,9 @@ import com.sfyc.ctpv.CountTimeProgressView;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -45,16 +49,13 @@ public class MainActivity extends Activity {
     private RelativeLayout viewTipBackground;
     private RealtimeBlurView blurView;
     private AliveDetector mAliveDetector;
-    private boolean DEBUG = false;
-    private boolean isUsedCustomStateTip = true; // 是否使用自定义活体状态文案
-    private static String BUSINESS_ID;
-    private Map<String, String> stateTipMap = new HashMap();
+    private final boolean isUsedCustomStateTip = true; // 是否使用自定义活体状态文案
+    private final Map<String, String> stateTipMap = new HashMap<String, String>();
     private static final String KEY_STRAIGHT_AHEAD = "straight_ahead";
     private static final String KEY_OPEN_MOUTH = "open_mouth";
     private static final String KEY_TURN_HEAD_TO_LEFT = "turn_head_to_left";
     private static final String KEY_TURN_HEAD_TO_RIGHT = "turn_head_to_right";
     private static final String KEY_BLINK_EYES = "blink_eyes";
-    private static final String FRONT_ERROR_TIP = "请移动人脸到摄像头视野中间";
     private static final String TIP_STRAIGHT_AHEAD = "请正对手机屏幕\n" +
             "将面部移入框内";//"请将面部移入框内并保持不动";
     private static final String TIP_OPEN_MOUTH = "张张嘴";
@@ -67,11 +68,15 @@ public class MainActivity extends Activity {
     private boolean isOpenVoice = true;
     private MediaPlayer mPlayer = new MediaPlayer();
     private ProgressDialog progressDialog;
+    private Timer timer;
+    private boolean isFirstTimer = true;
+    private final AtomicInteger timeAtomic = new AtomicInteger(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        timer = new Timer();
         initView();
         Util.setWindowBrightness(this, WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL);
     }
@@ -102,6 +107,9 @@ public class MainActivity extends Activity {
             mPlayer.reset();
             mPlayer.release();
             mPlayer = null;
+        }
+        if (timer != null) {
+            timer.cancel();
         }
     }
 
@@ -166,10 +174,9 @@ public class MainActivity extends Activity {
         stateTipMap.put(KEY_TURN_HEAD_TO_RIGHT, TIP_TURN_HEAD_TO_RIGHT);
         stateTipMap.put(KEY_OPEN_MOUTH, TIP_OPEN_MOUTH);
         stateTipMap.put(KEY_BLINK_EYES, TIP_BLINK_EYES);
-        BUSINESS_ID = "请输入您的业务id";
         mAliveDetector = AliveDetector.getInstance();
         mAliveDetector.setDebugMode(true);
-        mAliveDetector.init(this, mCameraPreview, BUSINESS_ID);
+        mAliveDetector.init(this, mCameraPreview, "易盾业务id");
         mAliveDetector.setDetectedListener(new DetectedListener() {
             @Override
             public void onReady(boolean isInitSuccess) {
@@ -198,7 +205,7 @@ public class MainActivity extends Activity {
             @Override
             public void onStateTipChanged(ActionType actionType, String stateTip) {
                 Log.d(TAG, "actionType:" + actionType.getActionTip() + " stateTip:" + actionType + " CurrentCheckStepIndex:" + mCurrentCheckStepIndex);
-                if (actionType == ActionType.ACTION_PASSED && actionType.getActionID() != mCurrentActionType.getActionID()) {
+                if (actionType == ActionType.ACTION_PASSED && !actionType.getActionID().equals(mCurrentActionType.getActionID())) {
                     mCurrentCheckStepIndex++;
                     if (mCurrentCheckStepIndex < mActions.length) {
                         updateIndicatorOnUiThread(mCurrentCheckStepIndex);
@@ -311,25 +318,51 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (isErrorType) {
-                    if (FRONT_ERROR_TIP.equals(tip)) {
-                        tvErrorTip.setText(TIP_STRAIGHT_AHEAD);
-                    } else {
-                        tvErrorTip.setText(tip);
-                    }
-                    viewTipBackground.setVisibility(View.VISIBLE);
-                    blurView.setVisibility(View.VISIBLE);
+                if (timeAtomic.get() == 1) {
+                    if (isErrorType) {
+                        switch (tip) {
+                            case "请移动人脸到摄像头视野中间":
+                                tvErrorTip.setText("请正对手机屏幕\n将面部移入框内");
+                                break;
+                            case "请正视摄像头视野中间并保持不动":
+                                tvErrorTip.setText("请正视摄像头\n并保持不动");
+                                break;
+                            default:
+                                tvErrorTip.setText(tip);
+                                break;
+                        }
+                        viewTipBackground.setVisibility(View.VISIBLE);
+                        blurView.setVisibility(View.VISIBLE);
 
-                } else {
-                    viewTipBackground.setVisibility(View.INVISIBLE);
-                    blurView.setVisibility(View.INVISIBLE);
-                    tvStateTip.setText(tip);
-                    tvErrorTip.setText("");
+                    } else {
+                        viewTipBackground.setVisibility(View.INVISIBLE);
+                        blurView.setVisibility(View.INVISIBLE);
+                        tvStateTip.setText(tip);
+                        tvErrorTip.setText("");
+                    }
+
+                    timeAtomic.set(0);
+                    if (isFirstTimer) {
+                        startTimer();
+                        isFirstTimer = false;
+                    }
                 }
             }
         });
     }
 
+    private void startTimer() {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (timeAtomic.get() == 1) {
+                    timeAtomic.set(0);
+                } else {
+                    timeAtomic.set(1);
+                }
+            }
+        }, 1000, 2000);
+    }
 
     public static String buildActionCommand(ActionType[] actionCommands) {
         StringBuilder commands = new StringBuilder();
