@@ -4,7 +4,7 @@
 ## 兼容性
 | 条目        | 说明                                                                      |
 | ----------- | -----------------------------------------------------------------------  |
-| 适配版本    | minSdkVersion 15 及以上版本                                                 |
+| 适配版本    | minSdkVersion 16 及以上版本                                                 |
 | cpu 架构    | 内部提供了 armeabi-v7a 和 arm64-v8a 两种 so ，对于不兼容 arm 的 x86 机型不适配 |
 
 ## 资源引入
@@ -32,6 +32,7 @@ allprojects {
 
 ```
 implementation 'io.github.yidun:livedetect:3.0.3'
+implementation 'com.squareup.okhttp3:okhttp:3.12.12'    //若项目中原本存在无需添加 
 ```
 ### 本地手动依赖
 
@@ -55,7 +56,7 @@ android{
 dependencies {
     implementation(name:'alive_detected_libary', ext: 'aar')      
     implementation(name: 'openCVLibrary343-release', ext: 'aar')  
-    implementation 'com.squareup.okhttp3:okhttp:4.7.2'    //若项目中原本存在无需添加        
+    implementation 'com.squareup.okhttp3:okhttp:3.12.12'    //若项目中原本存在无需添加        
     implementation 'com.google.code.gson:gson:2.8.6'      //若项目中原本存在无需添加          
 }
 ```
@@ -148,6 +149,11 @@ public class DemoActivity extends AppCompatActivity {
 
             @Override
             public void onPassed(boolean isPassed, String token) {
+
+            }
+            
+            @Override
+            public void onCheck() {
 
             }
 
@@ -310,6 +316,8 @@ aliveDetector.destroy()
 
 ### 7. 是否开启调试模式(非必须)
 
+代码添加在 init 之后 startDetect 之前
+
 #### 代码说明
 
 ```
@@ -324,6 +332,8 @@ aliveDetector.setDebugMode(boolean isDebug)
 
 ### 8. 设置检测动作灵敏度(非必须)
 
+代码添加在 init 之后 startDetect 之前
+
 #### 代码说明
 
 ```
@@ -337,6 +347,8 @@ aliveDetector.setSensitivity(int sensitivity)
 |sensitivity|int|是|AliveDetector.SENSITIVITY_NORMAL| 可取值 AliveDetector.SENSITIVITY_EASY = 0、AliveDetector.SENSITIVITY_NORMAL = 1、AliveDetector.SENSITIVITY_HARD = 2 分别对应容易、普通、难 |
 
 ### 9. 设置超时时间(非必须)
+
+代码添加在 init 之后 startDetect 之前
 
 #### 代码说明
 
