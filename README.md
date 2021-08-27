@@ -340,7 +340,7 @@ aliveDetector.setDebugMode(boolean isDebug)
 
 ### 8. 设置检测动作灵敏度(非必须)
 
-代码添加在 init 之后 startDetect 之前
+代码添加在 init 之前
 
 #### 代码说明
 
