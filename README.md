@@ -370,4 +370,4 @@ aliveDetector.setTimeOut(long timeout)
 
 |参数|类型|是否必填|默认值|描述|
 |----|----|--------|------|----|
-|timeout|long|是| 120000 | 单位毫秒 |
+|timeout|long|是| 30000 | 单位毫秒 |
