@@ -224,6 +224,8 @@ aliveDetector.init(Context context, NISCameraPreview cameraPreview, String busin
 
 #### 代码说明
 
+代码添加在 init 之后 startDetect 之前调用
+
 ```
 aliveDetector.setDetectedListener(DetectedListener detectedListener)
 ```
@@ -300,6 +302,8 @@ public interface DetectedListener {
 
 ### 4. 开始活体检测
 
+代码添加在 init 之后调用
+
 #### 代码说明
 
 ```
@@ -309,6 +313,8 @@ aliveDetector.startDetect()
 ### 5. 停止活体检测
 
 #### 代码说明
+
+可在onStop、onDestory中调用
 
 ```
 aliveDetector.stopDetect()
@@ -324,8 +330,6 @@ aliveDetector.destroy()
 
 ### 7. 是否开启调试模式(非必须)
 
-代码添加在 init 之后 startDetect 之前
-
 #### 代码说明
 
 ```
@@ -339,8 +343,6 @@ aliveDetector.setDebugMode(boolean isDebug)
 |isDebug|boolean|是|false| 是否打印日志 |
 
 ### 8. 设置检测动作灵敏度(非必须)
-
-代码添加在 init 之前
 
 #### 代码说明
 
@@ -356,7 +358,7 @@ aliveDetector.setSensitivity(int sensitivity)
 
 ### 9. 设置超时时间(非必须)
 
-代码添加在 init 之后 startDetect 之前
+代码添加在 init 之后 startDetect 之前调用
 
 #### 代码说明
 
