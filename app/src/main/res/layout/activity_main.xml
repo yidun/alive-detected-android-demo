@@ -43,10 +43,10 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
         android:background="@android:color/transparent"
+        android:gravity="center"
         android:textColor="@android:color/white"
         android:textSize="15sp"
         android:textStyle="bold"
-        android:gravity="center"
         tools:text="this is a test msg" />
 
     <ImageView
@@ -55,6 +55,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:contentDescription="@string/app_name"
         android:scaleType="centerCrop"
         android:src="@mipmap/alive_bg" />
 
@@ -64,13 +65,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/img_btn_back"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
             android:background="@mipmap/ico_back_2x"
+            android:contentDescription="@string/app_name"
             android:scaleType="centerCrop" />
 
         <ImageView
@@ -79,6 +81,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/img_btn_back"
+            android:contentDescription="@string/app_name"
             android:src="@mipmap/ico_logo_bar_blue" />
 
         <TextView
@@ -96,9 +99,9 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"
+            android:contentDescription="@string/app_name"
             android:scaleType="fitXY"
             android:src="@mipmap/ico_voice_open_2x" />
-        />
     </RelativeLayout>
 
     <com.sfyc.ctpv.CountTimeProgressView
@@ -143,9 +146,8 @@
             android:layout_height="140dp"
             android:layout_gravity="center"
             android:src="@mipmap/pic_front_2x" />
-        />
 
-        <android.support.v7.widget.LinearLayoutCompat
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center">
@@ -184,6 +186,6 @@
                 android:layout_margin="@dimen/step_tv_gap"
                 android:inflatedId="@+id/tv_step_4"
                 android:layout="@layout/layout_tv_step" />
-        </android.support.v7.widget.LinearLayoutCompat>
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

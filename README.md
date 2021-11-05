@@ -31,7 +31,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.0.7'
+implementation 'io.github.yidun:livedetect:3.0.8'
 implementation 'com.squareup.okhttp3:okhttp:3.12.12'    //若项目中原本存在无需重复添加 
 ```
 ### 本地手动依赖

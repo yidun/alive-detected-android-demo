@@ -9,13 +9,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp">
 
-        <ImageButton
+        <ImageView
             android:id="@+id/img_btn_back"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginLeft="20dp"
             android:background="@mipmap/ico_back_2x"
+            android:contentDescription="@string/app_name"
             android:scaleType="centerCrop" />
 
         <ImageView
@@ -24,6 +25,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/img_btn_back"
+            android:contentDescription="@string/app_name"
             android:src="@mipmap/ico_logo_bar_blue" />
 
         <TextView
@@ -33,16 +35,15 @@
             android:text="活体检测结果"
             android:textColor="@android:color/black"
             android:textStyle="bold" />
-        />
     </RelativeLayout>
 
     <ImageView
         android:id="@+id/iv_success"
         android:layout_width="200dp"
         android:layout_height="100dp"
-        android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
+        android:contentDescription="@string/app_name"
         android:scaleType="fitCenter"
         android:src="@mipmap/success_2x" />
 
@@ -50,7 +51,6 @@
         android:id="@+id/tv_success_tip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:text="活体检测通过"
         android:textSize="@dimen/tv_success_font_size" />
