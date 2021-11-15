@@ -32,7 +32,7 @@ allprojects {
 
 ```
 implementation 'io.github.yidun:livedetect:3.0.8'
-implementation 'com.squareup.okhttp3:okhttp:3.12.12'    //若项目中原本存在无需重复添加 
+implementation 'com.squareup.okhttp3:okhttp:4.9.1'    //若项目中原本存在无需重复添加 
 ```
 ### 本地手动依赖
 
@@ -56,7 +56,7 @@ android{
 dependencies {
     implementation(name:'alive_detected_libary', ext: 'aar')      
     implementation(name: 'openCVLibrary343-release', ext: 'aar')  
-    implementation 'com.squareup.okhttp3:okhttp:3.12.12'    //若项目中原本存在无需添加        
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'    //若项目中原本存在无需添加        
     implementation 'com.google.code.gson:gson:2.8.6'      //若项目中原本存在无需添加          
 }
 ```
