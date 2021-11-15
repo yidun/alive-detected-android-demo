@@ -14,6 +14,7 @@ import android.view.ViewStub
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.netease.nis.alivedetected.ActionType
 import com.netease.nis.alivedetected.AliveDetector
 import com.netease.nis.alivedetected.DetectedListener
@@ -30,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class MainActivity : AppCompatActivity() {
     companion object {
-        private const val isDebug = false
         private const val TAG = "MainActivity"
     }
 
@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
     private fun initData() {
         mAliveDetector = AliveDetector.getInstance()
         mAliveDetector?.setDebugMode(true)
-        mAliveDetector?.init(this, surface_view, "6a1a399443a54d31b91896a4208bf6e0")
+        mAliveDetector?.init(this, surface_view, "易盾业务id")
         mAliveDetector?.setDetectedListener(object : DetectedListener {
             override fun onReady(isInitSuccess: Boolean) {
                 // 开始倒计时
@@ -288,10 +288,26 @@ class MainActivity : AppCompatActivity() {
     private fun updateGif(currentActionIndex: Int) {
         mActions?.let {
             when (it[currentActionIndex]) {
-                ActionType.ACTION_TURN_HEAD_TO_LEFT -> gif_action?.setImageResource(R.drawable.turn_left)
-                ActionType.ACTION_TURN_HEAD_TO_RIGHT -> gif_action?.setImageResource(R.drawable.turn_right)
-                ActionType.ACTION_OPEN_MOUTH -> gif_action?.setImageResource(R.drawable.open_mouth)
-                ActionType.ACTION_BLINK_EYES -> gif_action?.setImageResource(R.drawable.open_eyes)
+                ActionType.ACTION_TURN_HEAD_TO_LEFT -> {
+                    gif_action?.let {
+                        Glide.with(this).asGif().load(R.drawable.turn_left).into(gif_action)
+                    }
+                }
+                ActionType.ACTION_TURN_HEAD_TO_RIGHT -> {
+                    gif_action?.let {
+                        Glide.with(this).asGif().load(R.drawable.turn_right).into(gif_action)
+                    }
+                }
+                ActionType.ACTION_OPEN_MOUTH -> {
+                    gif_action?.let {
+                        Glide.with(this).asGif().load(R.drawable.open_mouth).into(gif_action)
+                    }
+                }
+                ActionType.ACTION_BLINK_EYES -> {
+                    gif_action?.let {
+                        Glide.with(this).asGif().load(R.drawable.open_eyes).into(gif_action)
+                    }
+                }
                 else -> {
                     Log.d(TAG, "不支持的类型")
                 }
@@ -322,7 +338,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resetGif() {
-        gif_action?.setImageResource(R.mipmap.pic_front_2x)
+        gif_action?.let {
+            Glide.with(this).load(R.mipmap.pic_front_2x).into(it)
+        }
     }
 
     private fun setTextViewFocus(tv: TextView?) {

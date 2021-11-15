@@ -140,7 +140,7 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <pl.droidsonroids.gif.GifImageView
+        <ImageView
             android:id="@+id/gif_action"
             android:layout_width="140dp"
             android:layout_height="140dp"
