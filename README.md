@@ -110,6 +110,7 @@ ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}
 
 - 为了避免在某些中低端机型上检测卡顿，建议预览控件的宽与高不要设置为全屏，过大的预览控件会导致处理的数据过大，降低检测流畅度
 - 预览宽高不要随意设置，请遵守大部分相机支持的预览宽高比，3：4 或 9：16
+- 最好限制竖屏，横屏会影响效果
 
 #### 示例
 
