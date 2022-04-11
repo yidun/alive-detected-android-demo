@@ -3,11 +3,10 @@ package com.netease.nis.alivedetecteddemo
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.widget.TextView
-import com.netease.nis.alivedetecteddemo.Util.showToast
+import com.netease.nis.alivedetecteddemo.manager.showToast
 import kotlinx.android.synthetic.main.activity_failure.*
 
 /**
@@ -38,7 +37,7 @@ class FailureActivity : Activity() {
         tv_copy.setOnClickListener {
             val clipData = ClipData.newPlainText("token", tvToken?.text.toString())
             mClipboardManager?.setPrimaryClip(clipData)
-            showToast(this@FailureActivity, "Token复制成功")
+            "Token复制成功".showToast(this@FailureActivity)
         }
     }
 }

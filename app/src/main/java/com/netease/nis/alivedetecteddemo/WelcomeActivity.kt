@@ -23,8 +23,8 @@ class WelcomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks
     }
 
     private val PERMISSIONS =
-        arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    
+        arrayOf(Manifest.permission.CAMERA)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
@@ -37,13 +37,7 @@ class WelcomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks
     private fun checkPermissionAndJump(clazz: Class<*>) {
         if (!EasyPermissions.hasPermissions(this, Manifest.permission.CAMERA)) {
             Toast.makeText(applicationContext, "您未授予相机权限，请到设置中开启权限", Toast.LENGTH_LONG).show()
-        } else if (!EasyPermissions.hasPermissions(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-        ) {
-            Toast.makeText(applicationContext, "您未授予文件存储权限，请到设置中开启权限", Toast.LENGTH_LONG).show()
-        }else {
+        } else {
             val intent = Intent(this, clazz)
             startActivity(intent)
         }

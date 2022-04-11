@@ -31,7 +31,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.0.9'
+implementation 'io.github.yidun:livedetect:3.1.1'
 implementation 'com.squareup.okhttp3:okhttp:4.9.1'    //若项目中原本存在无需重复添加 
 ```
 ### 本地手动依赖
@@ -133,7 +133,6 @@ public class DemoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_demo);
 
         NISCameraPreview cameraPreview = findViewById(R.id.surface_view);
-        cameraPreview.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         aliveDetector = AliveDetector.getInstance();
         aliveDetector.init(this, cameraPreview, "申请的业务id");
         aliveDetector.setDetectedListener(new DetectedListener() {
@@ -313,7 +312,7 @@ aliveDetector.startDetect()
 
 #### 代码说明
 
-可在onStop、onDestory中调用
+可在onStop、onDestroy中调用
 
 ```
 aliveDetector.stopDetect()

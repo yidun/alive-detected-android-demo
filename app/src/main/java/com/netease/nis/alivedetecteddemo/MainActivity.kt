@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide
 import com.netease.nis.alivedetected.ActionType
 import com.netease.nis.alivedetected.AliveDetector
 import com.netease.nis.alivedetected.DetectedListener
+import com.netease.nis.alivedetecteddemo.manager.BroadcastDispatcher
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 import java.util.*
@@ -59,17 +60,14 @@ class MainActivity : AppCompatActivity() {
     private var tvStep2: TextView? = null
     private var tvStep3: TextView? = null
     private var tvStep4: TextView? = null
-    private var timer: Timer? = null
-    private var isFirstTimer = true
-    private val timeAtomic: AtomicInteger = AtomicInteger(1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Util.setWindowBrightness(this, WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_main)
 
-        timer = Timer()
         initView()
-        Util.setWindowBrightness(this, WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL)
     }
 
     private fun initView() {
@@ -95,6 +93,20 @@ class MainActivity : AppCompatActivity() {
                 iv_voice?.setImageResource(R.mipmap.ico_voice_close_2x)
             }
         }
+
+        BroadcastDispatcher.addScreenStatusChangedListener(object :
+            BroadcastDispatcher.ScreenStatusChangedListener {
+            override fun onForeground() {
+                resetIndicator()
+                resetGif()
+                mAliveDetector?.startDetect()
+            }
+
+            override fun onBackground() {
+                mAliveDetector?.stopDetect()
+            }
+
+        })
 
         initData()
     }
@@ -395,35 +407,19 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun setTipText(tip: String?, isErrorType: Boolean) {
         if (isErrorType) {
-            if (timeAtomic.get() == 1) {
-                when (tip) {
-                    "请移动人脸到摄像头视野中间" -> tv_error_tip?.text = "请正对手机屏幕\n将面部移入框内"
-                    "请正视摄像头视野中间并保持不动" -> tv_error_tip?.text = "请正视摄像头\n并保持不动"
-                    else -> tv_error_tip?.text = tip
-                }
-                view_tip_background?.visibility = View.VISIBLE
-                blur_view?.visibility = View.VISIBLE
-                timeAtomic.set(0)
-                if (isFirstTimer) {
-                    // 处理提示过于频繁，修改为1.5s提示一次
-                    startTimer()
-                    isFirstTimer = false
-                }
+            when (tip) {
+                "请移动人脸到摄像头视野中间" -> tv_error_tip?.text = "请正对手机屏幕\n将面部移入框内"
+                "请正视摄像头视野中间并保持不动" -> tv_error_tip?.text = "请正视摄像头\n并保持不动"
+                else -> tv_error_tip?.text = tip
             }
+            view_tip_background?.visibility = View.VISIBLE
+            blur_view?.visibility = View.VISIBLE
         } else {
             view_tip_background?.visibility = View.INVISIBLE
             blur_view?.visibility = View.INVISIBLE
             tv_tip?.text = tip
             tv_error_tip?.text = ""
         }
-    }
-
-    private fun startTimer() {
-        timer?.schedule(object : TimerTask() {
-            override fun run() {
-                timeAtomic.set(1)
-            }
-        }, 1500, 1500)
     }
 
     override fun onPause() {
@@ -442,9 +438,8 @@ class MainActivity : AppCompatActivity() {
             mAliveDetector?.stopDetect()
             mAliveDetector?.destroy()
             pv_count_time?.cancelCountTimeAnimation()
+            BroadcastDispatcher.unRegisterScreenOff(this)
         }
-
-        timer?.cancel()
 
         if (mPlayer?.isPlaying == true) {
             mPlayer?.stop()

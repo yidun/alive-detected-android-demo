@@ -12,13 +12,6 @@ import android.widget.Toast
  */
 object Util {
     @JvmStatic
-    fun showToast(activity: Activity, tip: String?) {
-        activity.runOnUiThread {
-            Toast.makeText(activity.applicationContext, tip, Toast.LENGTH_LONG).show()
-        }
-    }
-
-    @JvmStatic
     fun showDialog(
         activity: Activity, title: String?, message: String?,
         positiveText: String?, negativeText: String?,
