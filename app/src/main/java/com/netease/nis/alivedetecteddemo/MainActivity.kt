@@ -66,7 +66,8 @@ class MainActivity : AppCompatActivity() {
         Util.setWindowBrightness(this, WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_main)
-
+        BroadcastDispatcher.registerScreenOff(this)
+        
         initView()
     }
 
