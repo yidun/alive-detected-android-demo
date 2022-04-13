@@ -88,19 +88,8 @@ ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}
 
 ```
 -keeppackagenames com.netease.nis.alivedetected
--keep class com.netease.nis.alivedetected.entity.*{*;}
--keep class com.netease.nis.alivedetected.AliveDetector  {
-    public <methods>;
-    public <fields>;
-}
--keep class com.netease.nis.alivedetected.DetectedEngine{
-    native <methods>;
-}
--keep class com.netease.nis.alivedetected.NISCameraPreview  {
-    public <methods>;
-}
--keep class com.netease.nis.alivedetected.DetectedListener{*;}
--keep class com.netease.nis.alivedetected.ActionType{ *;}
+keep class com.netease.nis.**{*;}
+keep class com.netease.cloud.**{*;}
 ```
 
 ## 快速调用示例
