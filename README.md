@@ -87,6 +87,7 @@ ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}
 在 proguard-rules.pro 文件中添加如下混淆规则
 
 ```
+-keeppackagenames com.netease.nis.alivedetected
 -keep class com.netease.nis.alivedetected.entity.*{*;}
 -keep class com.netease.nis.alivedetected.AliveDetector  {
     public <methods>;
