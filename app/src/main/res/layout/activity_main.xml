@@ -59,6 +59,12 @@
         android:scaleType="centerCrop"
         android:src="@mipmap/alive_bg" />
 
+    <com.netease.nis.alivedetecteddemo.view.FaceAuraColorView
+        android:id="@+id/detect_aura"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <RelativeLayout
         android:id="@+id/rl_title"
         android:layout_width="match_parent"
@@ -148,44 +154,10 @@
             android:src="@mipmap/pic_front_2x" />
 
         <LinearLayout
+            android:id="@+id/ll_step"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
-            <TextView
-                android:id="@+id/tv_step_1"
-                android:layout_width="@dimen/step_tv_focus_size"
-                android:layout_height="@dimen/step_tv_focus_size"
-                android:layout_margin="@dimen/step_tv_gap"
-                android:background="@drawable/circle_tv_focus"
-                android:gravity="center"
-                android:text="1"
-                android:textColor="#FFFFFFFF"
-                android:textSize="@dimen/step_tv_font_size" />
-
-            <ViewStub
-                android:id="@+id/vs_step_2"
-                android:layout_width="@dimen/step_tv_un_focus_size"
-                android:layout_height="@dimen/step_tv_un_focus_size"
-                android:layout_margin="@dimen/step_tv_gap"
-                android:inflatedId="@+id/tv_step_2"
-                android:layout="@layout/layout_tv_step" />
-
-            <ViewStub
-                android:id="@+id/vs_step_3"
-                android:layout_width="@dimen/step_tv_un_focus_size"
-                android:layout_height="@dimen/step_tv_un_focus_size"
-                android:layout_margin="@dimen/step_tv_gap"
-                android:inflatedId="@+id/tv_step_3"
-                android:layout="@layout/layout_tv_step" />
-
-            <ViewStub
-                android:id="@+id/vs_step_4"
-                android:layout_width="@dimen/step_tv_un_focus_size"
-                android:layout_height="@dimen/step_tv_un_focus_size"
-                android:layout_margin="@dimen/step_tv_gap"
-                android:inflatedId="@+id/tv_step_4"
-                android:layout="@layout/layout_tv_step" />
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:orientation="horizontal" />
     </LinearLayout>
 </RelativeLayout>

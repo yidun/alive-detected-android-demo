@@ -1,4 +1,4 @@
-package com.netease.nis.alivedetecteddemo
+package com.netease.nis.alivedetecteddemo.utils
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -51,5 +51,10 @@ object Util {
         val lp = window.attributes
         lp.screenBrightness = brightness
         window.attributes = lp
+    }
+
+    fun dip2px(context: Context, dipValue: Float): Int {
+        val scale = context.resources.displayMetrics.density
+        return (dipValue * scale + 0.5f).toInt()
     }
 }
