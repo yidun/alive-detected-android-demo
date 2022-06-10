@@ -32,6 +32,10 @@ class WelcomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks
         btn_jump_to_main_act.setOnClickListener {
             checkPermissionAndJump(MainActivity::class.java)
         }
+
+        btn_type.setOnClickListener {
+            checkPermissionAndJump(WebViewActivity::class.java)
+        }
     }
 
     private fun checkPermissionAndJump(clazz: Class<*>) {

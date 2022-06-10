@@ -38,6 +38,9 @@
         <activity
             android:name=".FailureActivity"
             android:screenOrientation="behind" />
+        <activity
+            android:name=".WebViewActivity"
+            android:screenOrientation="behind" />
     </application>
 
 </manifest>
