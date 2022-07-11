@@ -35,6 +35,8 @@ class WelcomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks
 
         btn_type.setOnClickListener {
             checkPermissionAndJump(WebViewActivity::class.java)
+            // 腾讯X5浏览器
+//            checkPermissionAndJump(H5WebViewActivity::class.java)
         }
     }
 

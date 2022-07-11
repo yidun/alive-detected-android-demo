@@ -38,13 +38,13 @@ class WebViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_webview)
 
-        btn_type.setOnClickListener {
-            val intent = Intent(
-                this,
-                WelcomeActivity::class.java
-            )
-            startActivity(intent)
-        }
+//        btn_type.setOnClickListener {
+//            val intent = Intent(
+//                this,
+//                WelcomeActivity::class.java
+//            )
+//            startActivity(intent)
+//        }
         loadWeb()
     }
 
@@ -77,14 +77,12 @@ class WebViewActivity : AppCompatActivity() {
                     ) {
                         Log.i("WebViewActivity", "权限申请")
                         this@WebViewActivity.permissionRequest = request
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            ActivityCompat.requestPermissions(
-                                this@WebViewActivity,
-                                arrayOf(Manifest.permission.CAMERA),
-                                1001
-                            )
-                        }
-                    }else{
+                        ActivityCompat.requestPermissions(
+                            this@WebViewActivity,
+                            arrayOf(Manifest.permission.CAMERA),
+                            1001
+                        )
+                    } else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             request?.grant(request.resources)
                         }
@@ -126,7 +124,7 @@ class WebViewActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.i("WebViewActivity", "权限申请通过")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 permissionRequest?.grant(permissionRequest?.resources)

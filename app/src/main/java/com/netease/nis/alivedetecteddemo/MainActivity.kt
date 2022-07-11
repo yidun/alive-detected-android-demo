@@ -19,10 +19,10 @@ import com.netease.nis.alivedetected.ActionType
 import com.netease.nis.alivedetected.AliveDetector
 import com.netease.nis.alivedetected.DetectedListener
 import com.netease.nis.alivedetecteddemo.manager.BroadcastDispatcher
+import com.netease.nis.alivedetecteddemo.utils.Util
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author liu

@@ -1,4 +1,4 @@
-package com.netease.nis.alivedetecteddemo
+package com.netease.nis.alivedetecteddemo.utils
 
 import android.app.Activity
 import android.app.AlertDialog
