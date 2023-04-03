@@ -64,6 +64,16 @@ dependencies {
 }
 ```
 
+### 注意点
+如果同时使用易盾的活体检测和身份证OCR SDK，请务必先引用OCR SDK； 遇到so冲突，请用以下方式解决
+
+```
+packagingOptions {
+        pickFirst  'lib/arm64-v8a/libc++_shared.so'
+        pickFirst  'lib/armeabi-v7a/libc++_shared.so'
+    }
+```
+
 ## 各种配置
 
 ### 权限配置
