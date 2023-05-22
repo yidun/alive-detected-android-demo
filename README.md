@@ -101,9 +101,9 @@ ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}
 
 ```
 -keeppackagenames com.netease.nis.alivedetected
-keep class com.netease.nis.**{*;}
+-keep class com.netease.nis.**{*;}
 -dontwarn com.netease.nis.alivedetected.**
-keep class com.netease.cloud.nos.yidun.**{*;}
+-keep class com.netease.cloud.nos.yidun.**{*;}
 -dontwarn com.netease.cloud.nos.yidun.**
 ```
 
