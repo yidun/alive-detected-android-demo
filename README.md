@@ -148,8 +148,8 @@ public class DemoActivity extends AppCompatActivity {
 
             @Override
             public void onStateTipChanged(ActionType actionType, String stateTip) {
-                //单步动作 actionType.getActionID()为 0：正视前方 1：向右转头 2：向左转头 3：张嘴动作 4：眨眼动作 5：动作通过
-                6：动作错误
+                //单步动作 actionType.getActionID()为 0：正视前方 1：向右转头 2：向左转头 3：张嘴动作 4：眨眼动作 5：动作错误
+                6：动作通过
             }
 
             @Override
