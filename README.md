@@ -147,7 +147,7 @@ public class DemoActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStateTipChanged(ActionType actionType, String stateTip) {
+            public void onStateTipChanged(ActionType actionType, String stateTip, int code) {
                 //单步动作 actionType.getActionID()为 0：正视前方 1：向右转头 2：向左转头 3：张嘴动作 4：眨眼动作 5：动作错误
                 6：动作通过
             }
@@ -267,8 +267,9 @@ public interface DetectedListener {
      *     ACTION_PASSED("6", "动作通过")
      *                   
      * @param stateTip   引擎检测到的实时状态
+     * @param code 错误码，在ACTION_ERROR时用于国际化使用（1：请移动人脸到摄像头视野中间、2：环境光线暗、3：环境光线过亮、4：图像质量模糊）
      */
-    void onStateTipChanged(ActionType actionType, String stateTip);
+    void onStateTipChanged(ActionType actionType, String stateTip, int code);
 
     /**
      * 活体检测是否通过回调
