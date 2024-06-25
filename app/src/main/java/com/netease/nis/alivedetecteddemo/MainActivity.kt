@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_main)
         BroadcastDispatcher.registerScreenOff(this)
-        
+
         initView()
     }
 
@@ -121,7 +121,10 @@ class MainActivity : AppCompatActivity() {
                 // 开始倒计时
                 pv_count_time?.startCountTimeAnimation()
                 // 引擎初始化完成
-                if (isInitSuccess) Log.d(TAG, "活体检测引擎初始化完成") else Log.e(TAG, "活体检测引擎初始化失败")
+                if (isInitSuccess) Log.d(TAG, "活体检测引擎初始化完成") else Log.e(
+                    TAG,
+                    "活体检测引擎初始化失败"
+                )
             }
 
             override fun onActionCommands(actionTypes: Array<ActionType>?) {
@@ -132,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                 showIndicatorOnUiThread(commands.length - 1)
             }
 
-            override fun onStateTipChanged(actionType: ActionType?, stateTip: String?) {
+            override fun onStateTipChanged(actionType: ActionType?, stateTip: String?, code: Int) {
                 // 单步动作
                 Log.d(
                     TAG,
@@ -157,16 +160,20 @@ class MainActivity : AppCompatActivity() {
                         stateTipMap["open_mouth"],
                         false
                     )
+
                     ActionType.ACTION_TURN_HEAD_TO_LEFT -> setTipText(
                         stateTipMap["turn_head_to_left"], false
                     )
+
                     ActionType.ACTION_TURN_HEAD_TO_RIGHT -> setTipText(
                         stateTipMap["turn_head_to_right"], false
                     )
+
                     ActionType.ACTION_BLINK_EYES -> setTipText(
                         stateTipMap["blink_eyes"],
                         false
                     )
+
                     ActionType.ACTION_ERROR -> setTipText(stateTip, true)
                     else -> {
                     }
@@ -250,12 +257,14 @@ class MainActivity : AppCompatActivity() {
                 vsStep2?.visibility = View.VISIBLE
                 tvStep2 = findViewById(R.id.tv_step_2)
             }
+
             3 -> {
                 vsStep2?.visibility = View.VISIBLE
                 tvStep2 = findViewById(R.id.tv_step_2)
                 vsStep3?.visibility = View.VISIBLE
                 tvStep3 = findViewById(R.id.tv_step_3)
             }
+
             4 -> {
                 vsStep2?.visibility = View.VISIBLE
                 tvStep2 = findViewById(R.id.tv_step_2)
@@ -279,6 +288,7 @@ class MainActivity : AppCompatActivity() {
                 tvStep2?.text = "2"
                 setTextViewFocus(tvStep2)
             }
+
             3 -> {
                 tvStep1?.text = ""
                 tvStep2?.text = ""
@@ -286,6 +296,7 @@ class MainActivity : AppCompatActivity() {
                 tvStep3?.text = "3"
                 setTextViewFocus(tvStep3)
             }
+
             4 -> {
                 tvStep1?.text = ""
                 tvStep2?.text = ""
@@ -306,21 +317,25 @@ class MainActivity : AppCompatActivity() {
                         Glide.with(this).asGif().load(R.drawable.turn_left).into(gif_action)
                     }
                 }
+
                 ActionType.ACTION_TURN_HEAD_TO_RIGHT -> {
                     gif_action?.let {
                         Glide.with(this).asGif().load(R.drawable.turn_right).into(gif_action)
                     }
                 }
+
                 ActionType.ACTION_OPEN_MOUTH -> {
                     gif_action?.let {
                         Glide.with(this).asGif().load(R.drawable.open_mouth).into(gif_action)
                     }
                 }
+
                 ActionType.ACTION_BLINK_EYES -> {
                     gif_action?.let {
                         Glide.with(this).asGif().load(R.drawable.open_eyes).into(gif_action)
                     }
                 }
+
                 else -> {
                     Log.d(TAG, "不支持的类型")
                 }
@@ -409,7 +424,9 @@ class MainActivity : AppCompatActivity() {
     private fun setTipText(tip: String?, isErrorType: Boolean) {
         if (isErrorType) {
             when (tip) {
-                "请移动人脸到摄像头视野中间" -> tv_error_tip?.text = "请正对手机屏幕\n将面部移入框内"
+                "请移动人脸到摄像头视野中间" -> tv_error_tip?.text =
+                    "请正对手机屏幕\n将面部移入框内"
+
                 "请正视摄像头视野中间并保持不动" -> tv_error_tip?.text = "请正视摄像头\n并保持不动"
                 else -> tv_error_tip?.text = tip
             }
