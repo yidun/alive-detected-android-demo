@@ -274,7 +274,7 @@ public interface DetectedListener {
      *     ACTION_PASSED("6", "动作通过")
      *                   
      * @param stateTip   引擎检测到的实时状态
-     * @param code 错误码，在ACTION_ERROR时用于国际化使用（1：请移动人脸到摄像头视野中间、2：环境光线暗、3：环境光线过亮、4：图像质量模糊）
+     * @param code 错误码，在ACTION_ERROR时用于国际化使用（0:手机抖动，请保持稳定 1：请移动人脸到摄像头视野中间、2：环境光线暗、3：环境光线过亮、4：图像质量模糊）
      */
     void onStateTipChanged(ActionType actionType, String stateTip, int code);
 
