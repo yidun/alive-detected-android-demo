@@ -34,7 +34,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.2.8'
+implementation 'io.github.yidun:livedetect:3.2.9'
 ```
 ### 本地手动依赖
 
@@ -420,3 +420,17 @@ aliveDetector.setShakeThreshold(int shakeThreshold)
 |参数|类型|是否必填|默认值|描述|
 |----|----|--------|------|----|
 |shakeThreshold|int|是| 35 | 抖动检测阈值 |
+
+### 13. 设置人脸占比阈值(非必须)
+
+#### 代码说明
+
+```
+aliveDetector.setFaceThreshold(int faceThreshold)
+```
+
+#### 参数说明
+
+|参数|类型|是否必填| 默认值 | 描述            |
+|----|----|--------|-----|---------------|
+|faceThreshold|int|是| 7   | 人脸占比阈值，范围7-50 |
