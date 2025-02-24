@@ -6,6 +6,7 @@ buildscript {
         google()
         jcenter()
         mavenCentral()
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.2'
@@ -20,6 +21,7 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
     }
 }
 

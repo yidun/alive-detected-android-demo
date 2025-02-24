@@ -1,23 +1,25 @@
 package com.netease.nis.alivedetecteddemo
 
 import android.Manifest
-import android.content.Intent
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.KeyEvent
+import android.view.ViewGroup
+import android.view.ViewParent
+import android.webkit.JsPromptResult
 import android.webkit.PermissionRequest
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
-import android.widget.FrameLayout
+import android.webkit.WebViewClient
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.just.agentweb.AgentWeb
-import com.just.agentweb.AgentWebUIControllerImplBase
-import com.just.agentweb.WebChromeClient
-import kotlinx.android.synthetic.main.activity_webview.*
 
 /**
  * @author liu
@@ -31,91 +33,117 @@ class WebViewActivity : AppCompatActivity() {
             "https://verify.dun.163.com/prod/index.html"
     }
 
-    private var mAgentWeb: AgentWeb? = null
     private var permissionRequest: PermissionRequest? = null
+    private var webView: WebView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_webview)
 
-//        btn_type.setOnClickListener {
-//            val intent = Intent(
-//                this,
-//                WelcomeActivity::class.java
-//            )
-//            startActivity(intent)
-//        }
-        loadWeb()
+        initWebView()
     }
 
-    private fun loadWeb() {
-        mAgentWeb = AgentWeb.with(this)
-            .setAgentWebParent(rl_wv_container, FrameLayout.LayoutParams(-1, -1))
-            .useDefaultIndicator()
-            .setAgentWebUIController(object : AgentWebUIControllerImplBase() {
-                override fun onSelectItemsPrompt(
-                    view: WebView,
-                    url: String,
-                    ways: Array<String>,
-                    callback: Handler.Callback
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun initWebView() {
+        webView = findViewById(R.id.webView)
+        webView?.settings?.javaScriptEnabled = true
+        webView?.settings?.allowFileAccess = false
+        webView?.settings?.setGeolocationEnabled(false)
+        webView?.settings?.allowContentAccess = false
+        // 缩放按钮
+        webView?.settings?.builtInZoomControls = false
+        // 自适应屏幕
+        webView?.settings?.useWideViewPort = true
+        // 默认大视野模式
+        webView?.settings?.loadWithOverviewMode = true
+        webView?.settings?.setSupportMultipleWindows(true)
+        webView?.settings?.domStorageEnabled = true
+        webView?.settings?.databaseEnabled = true
+        webView?.settings?.defaultTextEncodingName = "UTF-8"
+        webView?.isHorizontalScrollBarEnabled = false
+        webView?.isVerticalScrollBarEnabled = false
+
+        webView?.webViewClient = object : WebViewClient() {
+            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
+                return this.shouldOverrideUrlLoading(view, request?.url.toString())
+            }
+
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                Log.i("WebViewActivity", "shouldOverrideUrlLoading${url}")
+                return false
+            }
+
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                Log.i("WebViewActivity", "onPageStarted${url}")
+                super.onPageStarted(view, url, favicon)
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                Log.i("WebViewActivity", "onPageFinished${url}")
+                super.onPageFinished(view, url)
+            }
+
+        }
+        webView?.webChromeClient = object : WebChromeClient() {
+            override fun onJsPrompt(
+                view: WebView?,
+                url: String?,
+                message: String?,
+                defaultValue: String?,
+                result: JsPromptResult?
+            ): Boolean {
+                Log.i("WebViewActivity", "onJsPrompt$message")
+                return super.onJsPrompt(view, url, message, defaultValue, result)
+            }
+
+            override fun onPermissionRequest(request: PermissionRequest?) {
+                Log.i("WebViewActivity", "h5权限回调")
+                if (ContextCompat.checkSelfPermission(
+                        this@WebViewActivity,
+                        Manifest.permission.CAMERA
+                    ) != PackageManager.PERMISSION_GRANTED
                 ) {
-                    super.onSelectItemsPrompt(
-                        view,
-                        url,
-                        arrayOf(getString(R.string.agentweb_camera)),
-                        callback
+                    Log.i("H5WebViewActivity", "权限申请")
+                    this@WebViewActivity.permissionRequest = request
+                    ActivityCompat.requestPermissions(
+                        this@WebViewActivity,
+                        arrayOf(Manifest.permission.CAMERA),
+                        1001
                     )
-                }
-            })
-            .setWebChromeClient(object : WebChromeClient() {
-                override fun onPermissionRequest(request: PermissionRequest?) {
-                    Log.i("WebViewActivity", "h5权限回调")
-                    if (ContextCompat.checkSelfPermission(
-                            this@WebViewActivity,
-                            Manifest.permission.CAMERA
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        Log.i("WebViewActivity", "权限申请")
-                        this@WebViewActivity.permissionRequest = request
-                        ActivityCompat.requestPermissions(
-                            this@WebViewActivity,
-                            arrayOf(Manifest.permission.CAMERA),
-                            1001
-                        )
-                    } else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            request?.grant(request.resources)
-                        }
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        request?.grant(request.resources)
                     }
                 }
-            })
-            .setMainFrameErrorView(R.layout.agentweb_error_page, -1)
-            .setSecurityType(AgentWeb.SecurityType.STRICT_CHECK)
-            .interceptUnkownUrl() //拦截找不到相关页面的Scheme
-            .createAgentWeb()
-            .ready()
-            .go(ALIVE_URL)
-    }
-
-    override fun onResume() {
-        mAgentWeb?.webLifeCycle?.onResume()
-        super.onResume()
-    }
-
-    override fun onPause() {
-        mAgentWeb?.webLifeCycle?.onPause()
-        super.onPause()
+            }
+        }
+        webView?.loadUrl(ALIVE_URL)
     }
 
     override fun onDestroy() {
+        webView?.let {
+            val parent: ViewParent = it.parent
+            (parent as ViewGroup).removeView(webView)
+            it.stopLoading()
+            // 退出时调用此方法，移除绑定的服务，否则某些特定系统会报错
+            it.settings.javaScriptEnabled = false
+            it.clearHistory()
+            it.removeAllViews()
+            it.destroy()
+        }
         super.onDestroy()
-        mAgentWeb?.webLifeCycle?.onDestroy()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return if (mAgentWeb?.handleKeyEvent(keyCode, event) == true) {
-            true
-        } else super.onKeyDown(keyCode, event)
+        if ((keyCode == KeyEvent.KEYCODE_BACK && webView != null && webView?.canGoBack() == true)) {
+            webView?.goBack()
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onRequestPermissionsResult(
