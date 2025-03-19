@@ -4,14 +4,14 @@ import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Intent
 import android.content.res.AssetFileDescriptor
-import android.graphics.PixelFormat
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewStub
 import android.view.WindowManager
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
@@ -39,27 +39,10 @@ class MainActivity : AppCompatActivity() {
     private var mActions: Array<ActionType>? = null
     private var mCurrentCheckStepIndex = 0
     private var mCurrentActionType = ActionType.ACTION_STRAIGHT_AHEAD
+    private var llStep: LinearLayout? = null
     private var isOpenVoice = true
     private var mPlayer: MediaPlayer? = null
-    private val stateTipMap: Map<String, String> = mapOf(
-        "straight_ahead" to """
-    请正对手机屏幕
-    将面部移入框内
-    """.trimIndent(),
-        "open_mouth" to "张张嘴",
-        "turn_head_to_left" to "慢慢左转头",
-        "turn_head_to_right" to "慢慢右转头",
-        "blink_eyes" to "眨眨眼"
-    )
-
     private var progressDialog: ProgressDialog? = null
-    private var vsStep2: ViewStub? = null
-    private var vsStep3: ViewStub? = null
-    private var vsStep4: ViewStub? = null
-    private var tvStep1: TextView? = null
-    private var tvStep2: TextView? = null
-    private var tvStep3: TextView? = null
-    private var tvStep4: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,11 +59,7 @@ class MainActivity : AppCompatActivity() {
         progressDialog = ProgressDialog(this)
         progressDialog?.setTitle("云端检测中")
 
-        surface_view?.holder?.setFormat(PixelFormat.TRANSLUCENT)
-        tvStep1 = findViewById(R.id.tv_step_1)
-        vsStep2 = findViewById(R.id.vs_step_2)
-        vsStep3 = findViewById(R.id.vs_step_3)
-        vsStep4 = findViewById(R.id.vs_step_4)
+        llStep = findViewById(R.id.ll_step)
         img_btn_back?.setOnClickListener {
             mAliveDetector?.stopDetect()
             finish()
@@ -141,6 +120,15 @@ class MainActivity : AppCompatActivity() {
                     TAG,
                     "actionType:" + actionType?.actionTip + " stateTip:" + stateTip + " CurrentCheckStepIndex:" + mCurrentCheckStepIndex
                 )
+                when (actionType) {
+                    ActionType.ACTION_ERROR -> setTipText(stateTip, true)
+                    ActionType.ACTION_PASSED -> {
+                        Log.d(TAG, "检测通过")
+                    }
+
+                    else -> setTipText(stateTip, false)
+                }
+
                 if (actionType == ActionType.ACTION_PASSED && actionType.actionID != mCurrentActionType.actionID) {
                     mCurrentCheckStepIndex++
                     mActions?.let {
@@ -152,31 +140,7 @@ class MainActivity : AppCompatActivity() {
                             mCurrentActionType = it[mCurrentCheckStepIndex]
                         }
                     }
-                }
 
-                when (actionType) {
-                    ActionType.ACTION_STRAIGHT_AHEAD -> setTipText("", false)
-                    ActionType.ACTION_OPEN_MOUTH -> setTipText(
-                        stateTipMap["open_mouth"],
-                        false
-                    )
-
-                    ActionType.ACTION_TURN_HEAD_TO_LEFT -> setTipText(
-                        stateTipMap["turn_head_to_left"], false
-                    )
-
-                    ActionType.ACTION_TURN_HEAD_TO_RIGHT -> setTipText(
-                        stateTipMap["turn_head_to_right"], false
-                    )
-
-                    ActionType.ACTION_BLINK_EYES -> setTipText(
-                        stateTipMap["blink_eyes"],
-                        false
-                    )
-
-                    ActionType.ACTION_ERROR -> setTipText(stateTip, true)
-                    else -> {
-                    }
                 }
             }
 
@@ -252,27 +216,20 @@ class MainActivity : AppCompatActivity() {
 
     // 显示所有步骤
     private fun showIndicatorOnUiThread(commandLength: Int) {
-        when (commandLength) {
-            2 -> {
-                vsStep2?.visibility = View.VISIBLE
-                tvStep2 = findViewById(R.id.tv_step_2)
+        llStep?.removeAllViews()
+        for (index in 0 until commandLength) {
+            val tvStep =
+                LayoutInflater.from(this).inflate(R.layout.layout_tv_step, null) as TextView
+            if (index == 0) {
+                tvStep.text = "1"
+                setTextViewFocus(tvStep)
             }
-
-            3 -> {
-                vsStep2?.visibility = View.VISIBLE
-                tvStep2 = findViewById(R.id.tv_step_2)
-                vsStep3?.visibility = View.VISIBLE
-                tvStep3 = findViewById(R.id.tv_step_3)
-            }
-
-            4 -> {
-                vsStep2?.visibility = View.VISIBLE
-                tvStep2 = findViewById(R.id.tv_step_2)
-                vsStep3?.visibility = View.VISIBLE
-                tvStep3 = findViewById(R.id.tv_step_3)
-                vsStep4?.visibility = View.VISIBLE
-                tvStep4 = findViewById(R.id.tv_step_4)
-            }
+            llStep?.addView(tvStep)
+            val param: LinearLayout.LayoutParams = tvStep.layoutParams as LinearLayout.LayoutParams
+            param.width = Util.dip2px(this, 18.0f)
+            param.height = Util.dip2px(this, 18.0f)
+            param.leftMargin = Util.dip2px(this, 5.0f)
+            tvStep.layoutParams = param
         }
     }
 
@@ -282,29 +239,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateIndicator(currentActionPassedCount: Int) {
-        when (currentActionPassedCount) {
-            2 -> {
-                tvStep1?.text = ""
-                tvStep2?.text = "2"
-                setTextViewFocus(tvStep2)
-            }
-
-            3 -> {
-                tvStep1?.text = ""
-                tvStep2?.text = ""
-                setTextViewFocus(tvStep2)
-                tvStep3?.text = "3"
-                setTextViewFocus(tvStep3)
-            }
-
-            4 -> {
-                tvStep1?.text = ""
-                tvStep2?.text = ""
-                setTextViewFocus(tvStep2)
-                tvStep3?.text = ""
-                setTextViewFocus(tvStep3)
-                tvStep4?.text = "4"
-                setTextViewFocus(tvStep4)
+        llStep?.let {
+            if (currentActionPassedCount > 0 && currentActionPassedCount <= it.childCount) {
+                val tv = llStep?.getChildAt(currentActionPassedCount - 1) as TextView
+                if (currentActionPassedCount > 1) {
+                    val lastTv = llStep?.getChildAt(currentActionPassedCount - 2) as TextView
+                    setTextViewUnFocus(lastTv)
+                }
+                tv.text = currentActionPassedCount.toString()
+                setTextViewFocus(tv)
             }
         }
     }
@@ -346,23 +289,6 @@ class MainActivity : AppCompatActivity() {
     private fun resetIndicator() {
         mCurrentCheckStepIndex = 0
         mCurrentActionType = ActionType.ACTION_STRAIGHT_AHEAD
-        tvStep1?.text = "1"
-        tv_tip?.text = ""
-        if (tvStep2 != null && tvStep2?.visibility == View.VISIBLE) {
-            tvStep2?.text = ""
-            setTextViewUnFocus(tvStep2)
-            tvStep2?.visibility = View.GONE
-        }
-        if (tvStep3 != null && tvStep3?.visibility == View.VISIBLE) {
-            tvStep3?.text = ""
-            setTextViewUnFocus(tvStep3)
-            tvStep3?.visibility = View.GONE
-        }
-        if (tvStep4 != null && tvStep4?.visibility == View.VISIBLE) {
-            tvStep4?.text = ""
-            setTextViewUnFocus(tvStep4)
-            tvStep4?.visibility = View.GONE
-        }
     }
 
     private fun resetGif() {
@@ -376,6 +302,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setTextViewUnFocus(tv: TextView?) {
+        tv?.text = ""
         tv?.setBackgroundResource(R.drawable.circle_tv_un_focus)
     }
 
@@ -387,6 +314,7 @@ class MainActivity : AppCompatActivity() {
                 ActionType.ACTION_OPEN_MOUTH -> playSound(getAssetFileDescriptor("open_mouth.wav"))
                 ActionType.ACTION_BLINK_EYES -> playSound(getAssetFileDescriptor("blink_eyes.wav"))
                 else -> {
+                    Log.d(TAG, "不支持的类型")
                 }
             }
         }

@@ -70,7 +70,7 @@
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
             android:background="@mipmap/ico_back_2x"
             android:contentDescription="@string/app_name"
             android:scaleType="centerCrop" />
@@ -79,8 +79,8 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@+id/img_btn_back"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@+id/img_btn_back"
             android:contentDescription="@string/app_name"
             android:src="@mipmap/ico_logo_bar_blue" />
 
@@ -88,7 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="易盾活体检测"
+            android:text="@string/app_name"
             android:textColor="@android:color/black"
             android:textStyle="bold" />
 
@@ -96,9 +96,9 @@
             android:id="@+id/iv_voice"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
             android:contentDescription="@string/app_name"
             android:scaleType="fitXY"
             android:src="@mipmap/ico_voice_open_2x" />
@@ -109,9 +109,9 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_below="@+id/rl_title"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
         app:backgroundColorCenter="@android:color/transparent"
         app:borderBottomColor="@android:color/darker_gray"
         app:borderDrawColor="#7C49F2"
@@ -145,47 +145,14 @@
             android:layout_width="140dp"
             android:layout_height="140dp"
             android:layout_gravity="center"
+            android:contentDescription="@string/app_name"
             android:src="@mipmap/pic_front_2x" />
 
         <LinearLayout
+            android:id="@+id/ll_step"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
-
-            <TextView
-                android:id="@+id/tv_step_1"
-                android:layout_width="@dimen/step_tv_focus_size"
-                android:layout_height="@dimen/step_tv_focus_size"
-                android:layout_margin="@dimen/step_tv_gap"
-                android:background="@drawable/circle_tv_focus"
-                android:gravity="center"
-                android:text="1"
-                android:textColor="#FFFFFFFF"
-                android:textSize="@dimen/step_tv_font_size" />
-
-            <ViewStub
-                android:id="@+id/vs_step_2"
-                android:layout_width="@dimen/step_tv_un_focus_size"
-                android:layout_height="@dimen/step_tv_un_focus_size"
-                android:layout_margin="@dimen/step_tv_gap"
-                android:inflatedId="@+id/tv_step_2"
-                android:layout="@layout/layout_tv_step" />
-
-            <ViewStub
-                android:id="@+id/vs_step_3"
-                android:layout_width="@dimen/step_tv_un_focus_size"
-                android:layout_height="@dimen/step_tv_un_focus_size"
-                android:layout_margin="@dimen/step_tv_gap"
-                android:inflatedId="@+id/tv_step_3"
-                android:layout="@layout/layout_tv_step" />
-
-            <ViewStub
-                android:id="@+id/vs_step_4"
-                android:layout_width="@dimen/step_tv_un_focus_size"
-                android:layout_height="@dimen/step_tv_un_focus_size"
-                android:layout_margin="@dimen/step_tv_gap"
-                android:inflatedId="@+id/tv_step_4"
-                android:layout="@layout/layout_tv_step" />
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:orientation="horizontal" />
     </LinearLayout>
 </RelativeLayout>

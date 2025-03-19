@@ -30,16 +30,6 @@ object Util {
         }
     }
 
-    fun isNetWorkAvailable(context: Context): Boolean {
-        var isAvailable = false
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = cm.activeNetworkInfo
-        if (networkInfo != null && networkInfo.isAvailable) {
-            isAvailable = true
-        }
-        return isAvailable
-    }
-
     /**
      * 设置当前窗口亮度
      *
@@ -51,5 +41,13 @@ object Util {
         val lp = window.attributes
         lp.screenBrightness = brightness
         window.attributes = lp
+    }
+
+    /**
+     * dip转px
+     */
+    fun dip2px(context: Context, dipValue: Float): Int {
+        val scale = context.resources.displayMetrics.density
+        return (dipValue * scale + 0.5f).toInt()
     }
 }
