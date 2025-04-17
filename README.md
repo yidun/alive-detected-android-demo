@@ -4,7 +4,7 @@
 ## 兼容性
 | 条目        | 说明                                                                      |
 | ----------- | -----------------------------------------------------------------------  |
-| 适配版本    | minSdkVersion 16 及以上版本                                                 |
+| 适配版本    | minSdkVersion 21 及以上版本                                                 |
 | cpu 架构    | 内部提供了 armeabi-v7a 和 arm64-v8a 两种 so ，对于不兼容 arm 的 x86 机型不适配 |
 
 ## 注意事项
@@ -34,7 +34,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.2.9'
+implementation 'io.github.yidun:livedetect:3.3.0'
 ```
 ### 本地手动依赖
 
