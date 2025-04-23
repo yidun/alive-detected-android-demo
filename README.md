@@ -34,7 +34,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.3.0'
+implementation 'io.github.yidun:livedetect:3.3.2'
 ```
 ### 本地手动依赖
 
