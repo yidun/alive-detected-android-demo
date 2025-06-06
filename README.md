@@ -34,7 +34,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.3.2'
+implementation 'io.github.yidun:livedetect:3.3.2.2'
 ```
 ### 本地手动依赖
 
@@ -56,8 +56,9 @@ android{
 }    
 
 dependencies {
-    implementation(name:'alive_detected_libary', ext: 'aar')      
-    implementation(name: 'openCVLibrary343-release', ext: 'aar')  
+    implementation(name:'livedetect', ext: 'aar')      
+    implementation(name: 'crashreport', ext: 'aar')
+    implementation(name: 'base-core', ext: 'aar')  
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'    //若项目中原本存在无需添加        
     implementation 'com.google.code.gson:gson:2.8.6'      //若项目中原本存在无需添加          
 }
@@ -408,6 +409,8 @@ aliveDetector.setAllowMultipleFace(boolean allowMultipleFace)
 |allowMultipleFace|boolean|是| false | 是否允许多人脸 |
 
 ### 12. 设置设备抖动检测阈值(非必须)
+
+值越小越灵敏
 
 #### 代码说明
 
