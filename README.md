@@ -294,7 +294,7 @@ public interface DetectedListener {
      * 活体检测过程中出现错误时回调
      *
      * @param code 错误码
-     * 1：sdk内部异常 2：服务端返回数据异常 3：上传图片异常
+     * 1：sdk内部异常 2：服务端返回数据异常 3：打开相机失败
      * @param msg  出错原因
      */
     void onError(int code, String msg, String token);
