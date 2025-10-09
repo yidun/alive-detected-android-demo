@@ -34,7 +34,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.3.2.2'
+implementation 'io.github.yidun:livedetect:3.3.6'
 ```
 ### 本地手动依赖
 
@@ -59,7 +59,7 @@ dependencies {
     implementation(name:'livedetect', ext: 'aar')      
     implementation(name: 'crashreport', ext: 'aar')
     implementation(name: 'base-core', ext: 'aar')  
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'    //若项目中原本存在无需添加        
+    implementation 'com.squareup.okhttp3:okhttp:4.9.2'    //若项目中原本存在无需添加        
     implementation 'com.google.code.gson:gson:2.8.6'      //若项目中原本存在无需添加          
 }
 ```
