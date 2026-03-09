@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.activity_webview_h5.*
 class H5WebViewActivity : AppCompatActivity() {
     companion object {
         private const val ALIVE_URL =
-            "https://verify.dun.163.com/prod/index.html"
+            "https://yidunfe.nosdn.127.net/livedetect-sdk-onepage/public-demo-2.html"
     }
 
     private var permissionRequest: PermissionRequest? = null

@@ -2,8 +2,11 @@ package com.netease.nis.alivedetecteddemo
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -12,10 +15,13 @@ import android.view.ViewGroup
 import android.view.ViewParent
 import android.webkit.JsPromptResult
 import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -30,17 +36,51 @@ import androidx.core.content.ContextCompat
 class WebViewActivity : AppCompatActivity() {
     companion object {
         private const val ALIVE_URL =
-            "https://verify.dun.163.com/prod/index.html"
+            "https://yidunfe.nosdn.127.net/livedetect-sdk-onepage/public-demo-2.html"
     }
 
     private var permissionRequest: PermissionRequest? = null
     private var webView: WebView? = null
+    
+    // 文件选择相关
+    private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
+    private lateinit var fileChooserLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_webview)
 
+        initFileChooserLauncher()
         initWebView()
+    }
+
+    private fun initFileChooserLauncher() {
+        fileChooserLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val results: Array<Uri>? = when {
+                    // 处理多选情况
+                    data?.clipData != null -> {
+                        val clipData = data.clipData!!
+                        Array(clipData.itemCount) { i ->
+                            clipData.getItemAt(i).uri
+                        }
+                    }
+                    // 处理单选情况
+                    data?.data != null -> {
+                        arrayOf(data.data!!)
+                    }
+                    else -> null
+                }
+                fileChooserCallback?.onReceiveValue(results)
+            } else {
+                // 用户取消选择时，也需要回调null，否则WebView会阻塞
+                fileChooserCallback?.onReceiveValue(null)
+            }
+            fileChooserCallback = null
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -119,6 +159,37 @@ class WebViewActivity : AppCompatActivity() {
                         request?.grant(request.resources)
                     }
                 }
+            }
+
+            // 支持 <input type="file"> 文件选择
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean {
+                // 如果已有回调未处理，先取消
+                fileChooserCallback?.onReceiveValue(null)
+                fileChooserCallback = filePathCallback
+
+                try {
+                    val intent = fileChooserParams?.createIntent()
+                    if (intent != null) {
+                        fileChooserLauncher.launch(intent)
+                    } else {
+                        // 创建默认的文件选择Intent
+                        val defaultIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "*/*"
+                        }
+                        fileChooserLauncher.launch(defaultIntent)
+                    }
+                } catch (e: Exception) {
+                    Log.e("WebViewActivity", "文件选择器启动失败: ${e.message}")
+                    fileChooserCallback?.onReceiveValue(null)
+                    fileChooserCallback = null
+                    return false
+                }
+                return true
             }
         }
         webView?.loadUrl(ALIVE_URL)
