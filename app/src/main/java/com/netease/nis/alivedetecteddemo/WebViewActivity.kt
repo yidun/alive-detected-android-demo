@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.KeyEvent
 import android.view.ViewGroup
@@ -36,12 +37,12 @@ import androidx.core.content.ContextCompat
 class WebViewActivity : AppCompatActivity() {
     companion object {
         private const val ALIVE_URL =
-            "https://yidunfe.nosdn.127.net/livedetect-sdk-onepage/public-demo-2.html"
+            "https://yidunfe.nos-jd.163yun.com/757beebd8af4e6e4e3aa8f5ae896a7eb.html"
     }
 
     private var permissionRequest: PermissionRequest? = null
     private var webView: WebView? = null
-    
+
     // 文件选择相关
     private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
     private lateinit var fileChooserLauncher: ActivityResultLauncher<Intent>
@@ -72,6 +73,7 @@ class WebViewActivity : AppCompatActivity() {
                     data?.data != null -> {
                         arrayOf(data.data!!)
                     }
+
                     else -> null
                 }
                 fileChooserCallback?.onReceiveValue(results)
@@ -172,17 +174,25 @@ class WebViewActivity : AppCompatActivity() {
                 fileChooserCallback = filePathCallback
 
                 try {
-                    val intent = fileChooserParams?.createIntent()
-                    if (intent != null) {
-                        fileChooserLauncher.launch(intent)
-                    } else {
-                        // 创建默认的文件选择Intent
-                        val defaultIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                            addCategory(Intent.CATEGORY_OPENABLE)
-                            type = "*/*"
+                    val captureEnabled = fileChooserParams?.isCaptureEnabled ?: false
+                    val acceptTypes = fileChooserParams?.acceptTypes ?: arrayOf()
+                    val isVideo = acceptTypes.any { it.startsWith("video/") }
+                    val intent = if (captureEnabled && isVideo) {
+                        // 直接启动相机录制视频
+                        Intent(MediaStore.ACTION_VIDEO_CAPTURE).apply {
+                            // 可选：指定保存路径，如果不指定，系统会保存在默认位置并返回 content:// Uri
+                            // 如果需要指定文件名，可以创建 FileProvider
                         }
-                        fileChooserLauncher.launch(defaultIntent)
+                    } else {
+                        // 默认行为：弹出文件选择器
+                        fileChooserParams?.createIntent()
+                            ?: Intent(Intent.ACTION_GET_CONTENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "video/*"
+                            }
                     }
+
+                    fileChooserLauncher.launch(intent)
                 } catch (e: Exception) {
                     Log.e("WebViewActivity", "文件选择器启动失败: ${e.message}")
                     fileChooserCallback?.onReceiveValue(null)
