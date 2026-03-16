@@ -37,7 +37,7 @@ import androidx.core.content.ContextCompat
 class WebViewActivity : AppCompatActivity() {
     companion object {
         private const val ALIVE_URL =
-            "https://yidunfe.nos-jd.163yun.com/757beebd8af4e6e4e3aa8f5ae896a7eb.html"
+            "https://yidunfe.nosdn.127.net/livedetect-sdk-onepage/public-demo-2.html"
     }
 
     private var permissionRequest: PermissionRequest? = null
