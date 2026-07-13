@@ -16,48 +16,25 @@
             android:layout_width="360dp"
             android:layout_height="480dp"
             android:layout_gravity="center" />
+
+        <com.netease.nis.alivedetecteddemo.view.FaceDetectRoundView
+            android:id="@+id/face_detect_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible" />
+
+        <com.netease.nis.alivedetecteddemo.view.SpaceLivenessView
+            android:id="@+id/space_liveness_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <com.netease.nis.alivedetecteddemo.view.FaceAuraColorView
+            android:id="@+id/detect_aura"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
     </FrameLayout>
-
-
-    <RelativeLayout
-        android:id="@+id/view_tip_background"
-        android:layout_width="match_parent"
-        android:layout_height="106dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="55dp"
-        android:alpha="0.75" />
-
-    <com.github.mmin18.widget.RealtimeBlurView
-        android:id="@+id/blur_view"
-        android:layout_width="match_parent"
-        android:layout_height="106dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="55dp"
-        android:visibility="visible"
-        app:realtimeBlurRadius="240dp" />
-
-    <TextView
-        android:id="@+id/tv_error_tip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:background="@android:color/transparent"
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        tools:text="this is a test msg" />
-
-    <ImageView
-        android:id="@+id/face_outline"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/app_name"
-        android:scaleType="centerCrop"
-        android:src="@mipmap/alive_bg" />
 
     <RelativeLayout
         android:id="@+id/rl_title"
@@ -147,12 +124,5 @@
             android:layout_gravity="center"
             android:contentDescription="@string/app_name"
             android:src="@mipmap/pic_front_2x" />
-
-        <LinearLayout
-            android:id="@+id/ll_step"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="horizontal" />
     </LinearLayout>
 </RelativeLayout>

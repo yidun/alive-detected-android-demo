@@ -1,26 +1,32 @@
 package com.netease.nis.alivedetecteddemo
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.LinearLayout
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.netease.cloud.nos.yidun.receiver.ConnectionChangeReceiver
 import com.netease.nis.alivedetected.ActionType
 import com.netease.nis.alivedetected.AliveDetector
 import com.netease.nis.alivedetected.DetectedListener
+import com.netease.nis.alivedetected.NISCameraPreview
 import com.netease.nis.alivedetecteddemo.manager.BroadcastDispatcher
 import com.netease.nis.alivedetecteddemo.utils.Util
-import kotlinx.android.synthetic.main.activity_main.*
+import com.netease.nis.alivedetecteddemo.view.FaceAuraColorView
+import com.netease.nis.alivedetecteddemo.view.FaceDetectRoundView
+import com.netease.nis.alivedetecteddemo.view.SpaceLivenessView
+import com.sfyc.ctpv.CountTimeProgressView
 import java.io.IOException
 import java.util.*
 
@@ -37,12 +43,22 @@ class MainActivity : AppCompatActivity() {
 
     private var mAliveDetector: AliveDetector? = null
     private var mActions: Array<ActionType>? = null
-    private var mCurrentCheckStepIndex = 0
     private var mCurrentActionType = ActionType.ACTION_STRAIGHT_AHEAD
-    private var llStep: LinearLayout? = null
     private var isOpenVoice = true
     private var mPlayer: MediaPlayer? = null
-    private var progressDialog: ProgressDialog? = null
+    private var progressDialog: AlertDialog? = null
+    private var connectionChangeReceiver: ConnectionChangeReceiver? = null
+
+    private var mSpaceLivenessView: SpaceLivenessView? = null
+    private var mFaceDetectView: FaceDetectRoundView? = null
+    private var imgBtnBack: ImageView? = null
+    private var ivVoice: ImageView? = null
+    private var surfaceView: NISCameraPreview? = null
+    private var pvCountTime: CountTimeProgressView? = null
+    private var gifAction: ImageView? = null
+    private var detectAura: FaceAuraColorView? = null
+    private var tvTip: TextView? = null
+    private var mLastSpaceCode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,27 +66,49 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_main)
         BroadcastDispatcher.registerScreenOff(this)
+        registerNetChange()
 
         initView()
     }
 
+    private fun registerNetChange() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE")
+        connectionChangeReceiver = ConnectionChangeReceiver()
+        registerReceiver(connectionChangeReceiver, intentFilter)
+    }
+
     private fun initView() {
         mPlayer = MediaPlayer()
-        progressDialog = ProgressDialog(this)
-        progressDialog?.setTitle("云端检测中")
+        val progressBar = ProgressBar(this).apply {
+            isIndeterminate = true
+        }
+        progressDialog = AlertDialog.Builder(this)
+            .setTitle("云端检测中")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
 
-        llStep = findViewById(R.id.ll_step)
-        img_btn_back?.setOnClickListener {
+        mSpaceLivenessView = findViewById(R.id.space_liveness_view)
+        mFaceDetectView = findViewById(R.id.face_detect_view)
+        imgBtnBack = findViewById(R.id.img_btn_back)
+        ivVoice = findViewById(R.id.iv_voice)
+        surfaceView = findViewById(R.id.surface_view)
+        pvCountTime = findViewById(R.id.pv_count_time)
+        gifAction = findViewById(R.id.gif_action)
+        detectAura = findViewById(R.id.detect_aura)
+        tvTip = findViewById(R.id.tv_tip)
+        imgBtnBack?.setOnClickListener {
             mAliveDetector?.stopDetect()
             finish()
         }
 
-        iv_voice?.setOnClickListener {
+        ivVoice?.setOnClickListener {
             isOpenVoice = !isOpenVoice
             if (isOpenVoice) {
-                iv_voice?.setImageResource(R.mipmap.ico_voice_open_2x)
+                ivVoice?.setImageResource(R.mipmap.ico_voice_open_2x)
             } else {
-                iv_voice?.setImageResource(R.mipmap.ico_voice_close_2x)
+                ivVoice?.setImageResource(R.mipmap.ico_voice_close_2x)
             }
         }
 
@@ -94,11 +132,12 @@ class MainActivity : AppCompatActivity() {
     private fun initData() {
         mAliveDetector = AliveDetector.getInstance()
         mAliveDetector?.setDebugMode(true)
-        mAliveDetector?.init(this, surface_view, "易盾业务id")
+        mAliveDetector?.setHosts(arrayOf("verify.test.dun.163.com"))
+        mAliveDetector?.init(this, surfaceView, "f0a503e9876d4da0bb5e705146eb5d11")
         mAliveDetector?.setDetectedListener(object : DetectedListener {
             override fun onReady(isInitSuccess: Boolean) {
                 // 开始倒计时
-                pv_count_time?.startCountTimeAnimation()
+                pvCountTime?.startCountTimeAnimation()
                 // 引擎初始化完成
                 if (isInitSuccess) Log.d(TAG, "活体检测引擎初始化完成") else Log.e(
                     TAG,
@@ -111,62 +150,22 @@ class MainActivity : AppCompatActivity() {
                 mActions = actionTypes
                 val commands = buildActionCommand(actionTypes)
                 Log.d(TAG, "活体检测动作序列为:$commands")
-                showIndicatorOnUiThread(commands.length - 1)
             }
 
-            override fun onStateTipChanged(actionType: ActionType?, stateTip: String?, code: Int) {
+            override fun onStateTipChanged(actionType: ActionType, stateTip: String?, code: Int) {
                 // 单步动作
-                Log.d(
-                    TAG,
-                    "actionType:" + actionType?.actionTip + " stateTip:" + stateTip + " CurrentCheckStepIndex:" + mCurrentCheckStepIndex
-                )
-                when (actionType) {
-                    ActionType.ACTION_ERROR -> setTipText(stateTip, true)
-                    ActionType.ACTION_PASSED -> {
-                        Log.d(TAG, "检测通过")
-                    }
+                Log.d(TAG, "actionType:" + actionType.actionTip + " stateTip:" + stateTip)
 
-                    else -> setTipText(stateTip, false)
-                }
-
-                if (actionType == ActionType.ACTION_PASSED && actionType.actionID != mCurrentActionType.actionID) {
-                    mCurrentCheckStepIndex++
-                    mActions?.let {
-                        if (mCurrentCheckStepIndex < it.size) {
-                            updateIndicatorOnUiThread(mCurrentCheckStepIndex)
-                            if (isOpenVoice) {
-                                playSounds(mCurrentCheckStepIndex)
-                            }
-                            mCurrentActionType = it[mCurrentCheckStepIndex]
-                        }
-                    }
-
-                }
+                dealWithTipChanged(actionType, stateTip)
             }
 
             override fun onPassed(isPassed: Boolean, token: String?) {
                 // 检测通过
-                if (progressDialog?.isShowing == true) {
-                    progressDialog?.dismiss()
-                }
-                if (isPassed) {
-                    Log.d(TAG, "活体检测通过,token is:$token")
-                    finish()
-                    val intent = Intent(this@MainActivity, SuccessActivity::class.java)
-                    startActivity(intent)
-                } else {
-                    Log.e(TAG, "活体检测不通过,token is:$token")
-                    finish()
-                    val intent = Intent(
-                        this@MainActivity,
-                        FailureActivity::class.java
-                    )
-                    intent.putExtra("token", token)
-                    startActivity(intent)
-                }
+                dealWithPassed(isPassed, token)
             }
 
             override fun onCheck() {
+                // 云端检测
                 if (!isFinishing) {
                     progressDialog?.show()
                 }
@@ -180,7 +179,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onOverTime() {
-                Util.showDialog(this@MainActivity, "检测超时", "请在规定时间内完成动作",
+                Util.showDialog(
+                    this@MainActivity, "检测超时", "请在规定时间内完成动作",
                     "重试", "返回首页", { _, _ ->
                         resetIndicator()
                         resetGif()
@@ -194,11 +194,165 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+            override fun onBackgroundColor(color: Int) {
+                // -1说明是动作活体切换
+                if (color != -1) {
+                    Glide.with(this@MainActivity).load(R.mipmap.pic_front_2x).into(gifAction!!)
+                    tvTip?.text = ""
+                    detectAura?.visibility = View.VISIBLE
+                    detectAura?.start(color)
+                } else {
+                    detectAura?.let {
+                        if (it.visibility == View.VISIBLE) {
+                            it.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+
+            override fun onSpaceLiveness(direction: Int) {
+                enterSpaceModelUI()
+            }
+
+            override fun onSpaceStateTipChanged(
+                actionType: ActionType?,
+                stateTip: String?,
+                code: Int
+            ) {
+                if (actionType == ActionType.ACTION_PASSED) {
+                    exitSpaceModelUI()
+                }
+                when (actionType) {
+                    ActionType.ACTION_SPACE_NEAR, ActionType.ACTION_SPACE_FAR -> {
+                        when (code) {
+                            100 -> {
+                                mSpaceLivenessView?.reset()
+                                mLastSpaceCode = -1
+                            }
+
+                            7 -> {
+                                mSpaceLivenessView?.setDistanceType(SpaceLivenessView.DISTANCE_NEAR)
+                                if (mLastSpaceCode != 7) mSpaceLivenessView?.startNearAnimation()
+                                mSpaceLivenessView?.setRingType(SpaceLivenessView.RING_TYPE_COLOR)
+                                mSpaceLivenessView?.setTipSecondText(stateTip ?: "请略微靠近屏幕")
+                                mLastSpaceCode = 7
+                            }
+
+                            8 -> {
+                                mSpaceLivenessView?.setDistanceType(SpaceLivenessView.DISTANCE_FAR)
+                                if (mLastSpaceCode != 8) mSpaceLivenessView?.startFarAnimation()
+                                mSpaceLivenessView?.setRingType(SpaceLivenessView.RING_TYPE_COLOR)
+                                mSpaceLivenessView?.setTipSecondText(stateTip ?: "请略微远离屏幕")
+                                mLastSpaceCode = 8
+                            }
+
+                            0 -> {
+                                mSpaceLivenessView?.setRingType(SpaceLivenessView.RING_TYPE_BLUE)
+                                mSpaceLivenessView?.setTipSecondText(stateTip ?: "请保持不动")
+                                mLastSpaceCode = 0
+                            }
+
+                            else -> {}
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
         })
 
-        mAliveDetector?.sensitivity = AliveDetector.SENSITIVITY_NORMAL
         mAliveDetector?.setTimeOut(30000)
         mAliveDetector?.startDetect()
+    }
+
+    /**
+     * 处理单步动作
+     */
+    private fun dealWithTipChanged(actionType: ActionType, stateTip: String?) {
+        when (actionType) {
+            ActionType.ACTION_ERROR -> setTipText(stateTip, true)
+            ActionType.ACTION_PASSED -> {
+                Log.d(TAG, "检测通过")
+            }
+
+            else -> setTipText(stateTip, false)
+        }
+
+        if (actionType != ActionType.ACTION_PASSED && actionType != ActionType.ACTION_ERROR) {
+            if (actionType != this.mCurrentActionType) {
+                mCurrentActionType = actionType
+                when (actionType) {
+                    ActionType.ACTION_TURN_HEAD_TO_LEFT -> {
+                        gifAction?.let {
+                            Glide.with(applicationContext).asGif().load(R.drawable.turn_left)
+                                .into(gifAction!!)
+                        }
+                        if (isOpenVoice) {
+                            playSound(getAssetFileDescriptor("turn_head_to_left.wav"))
+                        }
+                    }
+
+                    ActionType.ACTION_TURN_HEAD_TO_RIGHT -> {
+                        gifAction?.let {
+                            Glide.with(applicationContext).asGif().load(R.drawable.turn_right)
+                                .into(gifAction!!)
+                        }
+                        if (isOpenVoice) {
+                            playSound(getAssetFileDescriptor("turn_head_to_right.wav"))
+                        }
+                    }
+
+                    ActionType.ACTION_OPEN_MOUTH -> {
+                        gifAction?.let {
+                            Glide.with(applicationContext).asGif().load(R.drawable.open_mouth)
+                                .into(gifAction!!)
+                        }
+                        if (isOpenVoice) {
+                            playSound(getAssetFileDescriptor("open_mouth.wav"))
+                        }
+                    }
+
+                    ActionType.ACTION_BLINK_EYES -> {
+                        gifAction?.let {
+                            Glide.with(applicationContext).asGif().load(R.drawable.open_eyes)
+                                .into(gifAction!!)
+                        }
+                        if (isOpenVoice) {
+                            playSound(getAssetFileDescriptor("blink_eyes.wav"))
+                        }
+                    }
+
+                    else -> {
+                        Log.d(TAG, "不支持的类型")
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 处理本地检测通过
+     */
+    private fun dealWithPassed(isPassed: Boolean, token: String?) {
+        // 检测通过
+        if (progressDialog?.isShowing == true) {
+            progressDialog?.dismiss()
+        }
+        if (isPassed) {
+            Log.d(TAG, "活体检测通过,token is:$token")
+            finish()
+            val intent = Intent(this@MainActivity, SuccessActivity::class.java)
+            startActivity(intent)
+        } else {
+            Log.e(TAG, "活体检测不通过,token is:$token")
+            finish()
+            val intent = Intent(
+                this@MainActivity,
+                FailureActivity::class.java
+            )
+            intent.putExtra("token", token)
+            startActivity(intent)
+        }
     }
 
     /**
@@ -214,109 +368,35 @@ class MainActivity : AppCompatActivity() {
         return if (TextUtils.isEmpty(commands.toString())) "" else commands.toString()
     }
 
-    // 显示所有步骤
-    private fun showIndicatorOnUiThread(commandLength: Int) {
-        llStep?.removeAllViews()
-        for (index in 0 until commandLength) {
-            val tvStep =
-                LayoutInflater.from(this).inflate(R.layout.layout_tv_step, null) as TextView
-            if (index == 0) {
-                tvStep.text = "1"
-                setTextViewFocus(tvStep)
-            }
-            llStep?.addView(tvStep)
-            val param: LinearLayout.LayoutParams = tvStep.layoutParams as LinearLayout.LayoutParams
-            param.width = Util.dip2px(this, 18.0f)
-            param.height = Util.dip2px(this, 18.0f)
-            param.leftMargin = Util.dip2px(this, 5.0f)
-            tvStep.layoutParams = param
-        }
-    }
-
-    private fun updateIndicatorOnUiThread(currentActionIndex: Int) {
-        updateIndicator(currentActionIndex)
-        updateGif(currentActionIndex)
-    }
-
-    private fun updateIndicator(currentActionPassedCount: Int) {
-        llStep?.let {
-            if (currentActionPassedCount > 0 && currentActionPassedCount <= it.childCount) {
-                val tv = llStep?.getChildAt(currentActionPassedCount - 1) as TextView
-                if (currentActionPassedCount > 1) {
-                    val lastTv = llStep?.getChildAt(currentActionPassedCount - 2) as TextView
-                    setTextViewUnFocus(lastTv)
-                }
-                tv.text = currentActionPassedCount.toString()
-                setTextViewFocus(tv)
-            }
-        }
-    }
-
-    private fun updateGif(currentActionIndex: Int) {
-        mActions?.let {
-            when (it[currentActionIndex]) {
-                ActionType.ACTION_TURN_HEAD_TO_LEFT -> {
-                    gif_action?.let {
-                        Glide.with(this).asGif().load(R.drawable.turn_left).into(gif_action)
-                    }
-                }
-
-                ActionType.ACTION_TURN_HEAD_TO_RIGHT -> {
-                    gif_action?.let {
-                        Glide.with(this).asGif().load(R.drawable.turn_right).into(gif_action)
-                    }
-                }
-
-                ActionType.ACTION_OPEN_MOUTH -> {
-                    gif_action?.let {
-                        Glide.with(this).asGif().load(R.drawable.open_mouth).into(gif_action)
-                    }
-                }
-
-                ActionType.ACTION_BLINK_EYES -> {
-                    gif_action?.let {
-                        Glide.with(this).asGif().load(R.drawable.open_eyes).into(gif_action)
-                    }
-                }
-
-                else -> {
-                    Log.d(TAG, "不支持的类型")
-                }
-            }
-        }
-    }
-
     private fun resetIndicator() {
-        mCurrentCheckStepIndex = 0
         mCurrentActionType = ActionType.ACTION_STRAIGHT_AHEAD
+        mSpaceLivenessView?.visibility = View.GONE
+        mSpaceLivenessView?.reset()
+        mFaceDetectView?.visibility = View.VISIBLE
+        mFaceDetectView?.reset()
+    }
+
+    private fun enterSpaceModelUI() {
+        runOnUiThread {
+            mLastSpaceCode = -1
+            mSpaceLivenessView?.visibility = View.VISIBLE
+            mSpaceLivenessView?.reset()
+            mFaceDetectView?.visibility = View.GONE
+            mFaceDetectView?.reset()
+        }
+    }
+
+    private fun exitSpaceModelUI() {
+        runOnUiThread {
+            mSpaceLivenessView?.visibility = View.GONE
+            mSpaceLivenessView?.reset()
+            mFaceDetectView?.visibility = View.VISIBLE
+        }
     }
 
     private fun resetGif() {
-        gif_action?.let {
-            Glide.with(this).load(R.mipmap.pic_front_2x).into(it)
-        }
-    }
-
-    private fun setTextViewFocus(tv: TextView?) {
-        tv?.setBackgroundResource(R.drawable.circle_tv_focus)
-    }
-
-    private fun setTextViewUnFocus(tv: TextView?) {
-        tv?.text = ""
-        tv?.setBackgroundResource(R.drawable.circle_tv_un_focus)
-    }
-
-    private fun playSounds(currentActionIndex: Int) {
-        mActions?.let {
-            when (it[currentActionIndex]) {
-                ActionType.ACTION_TURN_HEAD_TO_LEFT -> playSound(getAssetFileDescriptor("turn_head_to_left.wav"))
-                ActionType.ACTION_TURN_HEAD_TO_RIGHT -> playSound(getAssetFileDescriptor("turn_head_to_right.wav"))
-                ActionType.ACTION_OPEN_MOUTH -> playSound(getAssetFileDescriptor("open_mouth.wav"))
-                ActionType.ACTION_BLINK_EYES -> playSound(getAssetFileDescriptor("blink_eyes.wav"))
-                else -> {
-                    Log.d(TAG, "不支持的类型")
-                }
-            }
+        gifAction?.let {
+            Glide.with(applicationContext).load(R.mipmap.pic_front_2x).into(it)
         }
     }
 
@@ -351,20 +431,17 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun setTipText(tip: String?, isErrorType: Boolean) {
         if (isErrorType) {
-            when (tip) {
-                "请移动人脸到摄像头视野中间" -> tv_error_tip?.text =
-                    "请正对手机屏幕\n将面部移入框内"
-
-                "请正视摄像头视野中间并保持不动" -> tv_error_tip?.text = "请正视摄像头\n并保持不动"
-                else -> tv_error_tip?.text = tip
+            val display = when (tip) {
+                "请移动人脸到摄像头视野中间" -> "请正对手机屏幕\n将面部移入框内"
+                "请正视摄像头视野中间并保持不动" -> "请正视摄像头\n并保持不动"
+                else -> tip ?: ""
             }
-            view_tip_background?.visibility = View.VISIBLE
-            blur_view?.visibility = View.VISIBLE
+            mFaceDetectView?.setTipTopText(display)
+            mSpaceLivenessView?.setTipTopText(display)
         } else {
-            view_tip_background?.visibility = View.INVISIBLE
-            blur_view?.visibility = View.INVISIBLE
-            tv_tip?.text = tip
-            tv_error_tip?.text = ""
+            mFaceDetectView?.setTipTopText("")
+            mFaceDetectView?.setTipSecondText(tip ?: "")
+            mSpaceLivenessView?.setTipTopText("")
         }
     }
 
@@ -376,6 +453,14 @@ class MainActivity : AppCompatActivity() {
                 it.dismiss()
             }
         }
+        if (mPlayer?.isPlaying == true) {
+            mPlayer?.pause()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mPlayer?.stop()
     }
 
     override fun onDestroy() {
@@ -383,10 +468,18 @@ class MainActivity : AppCompatActivity() {
         if (isFinishing) {
             mAliveDetector?.stopDetect()
             mAliveDetector?.destroy()
-            pv_count_time?.cancelCountTimeAnimation()
+            mAliveDetector = null
+            pvCountTime?.cancelCountTimeAnimation()
             BroadcastDispatcher.unRegisterScreenOff(this)
+            connectionChangeReceiver?.let {
+                unregisterReceiver(it)
+            }
         }
 
+        if (progressDialog?.isShowing == true) {
+            progressDialog?.dismiss()
+        }
+        progressDialog = null
         if (mPlayer?.isPlaying == true) {
             mPlayer?.stop()
         }
