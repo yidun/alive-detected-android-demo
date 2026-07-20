@@ -34,7 +34,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.3.6'
+implementation 'io.github.yidun:livedetect:3.3.8.1'
 ```
 ### 本地手动依赖
 
@@ -303,6 +303,28 @@ public interface DetectedListener {
      * 活体检测过程超时回调
      */
     void onOverTime();
+
+    /**
+     * @param code 颜色十六进制值
+     * RGB活体颜色值回调，请根据此颜色值闪屏
+     */
+    void onBackgroundColor(int color);
+
+     /**
+     * @param direction 方向 1：由远到近 0：由近到远
+     * 远近空间活体开始回调
+     */
+    void onSpaceLiveness(int direction);
+
+     /**
+     * @param actionType 当前类型
+     * ActionType.ACTION_PASSED：远近空间活体通过 ActionType.ACTION_SPACE_NEAR：近 ActionType.ACTION_SPACE_FAR：远  
+     * @param stateTip 提示词
+     * 总共五种情况 请略微靠近屏幕、保持不动、请略微远离屏幕、切换阶段、动作成功
+     * @param code code码
+     * 0：保持不动 100：切换阶段 200：动作成功 7：请略微靠近屏幕 8：请略微远离屏幕
+     */
+    void onSpaceStateTipChanged(ActionType actionType, String stateTip, int code);
 }
 ```
 
