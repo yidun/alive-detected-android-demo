@@ -311,8 +311,8 @@ public interface DetectedListener {
     void onBackgroundColor(int color);
 
      /**
-     * @param direction 方向 1：由远到近 0：由近到远
-     * 远近空间活体开始回调
+     * @param direction 方向 0：由近到远 1：由远到近
+     * 远近空间活体配置回调
      */
     void onSpaceLiveness(int direction);
 
@@ -321,7 +321,7 @@ public interface DetectedListener {
      * ActionType.ACTION_PASSED：远近空间活体通过 ActionType.ACTION_SPACE_NEAR：近 ActionType.ACTION_SPACE_FAR：远  
      * @param stateTip 提示词
      * 总共五种情况 请略微靠近屏幕、保持不动、请略微远离屏幕、切换阶段、动作成功
-     * @param code code码
+     * @param code 状态码
      * 0：保持不动 100：切换阶段 200：动作成功 7：请略微靠近屏幕 8：请略微远离屏幕
      */
     void onSpaceStateTipChanged(ActionType actionType, String stateTip, int code);
