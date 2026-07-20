@@ -132,8 +132,7 @@ class MainActivity : AppCompatActivity() {
     private fun initData() {
         mAliveDetector = AliveDetector.getInstance()
         mAliveDetector?.setDebugMode(true)
-        mAliveDetector?.setHosts(arrayOf("verify.test.dun.163.com"))
-        mAliveDetector?.init(this, surfaceView, "f0a503e9876d4da0bb5e705146eb5d11")
+        mAliveDetector?.init(this, surfaceView, "易盾业务id")
         mAliveDetector?.setDetectedListener(object : DetectedListener {
             override fun onReady(isInitSuccess: Boolean) {
                 // 开始倒计时
