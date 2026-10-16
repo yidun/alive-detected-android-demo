@@ -1,5 +1,12 @@
-# 活体检测
-根据提示做出相应动作，SDK 实时采集动态信息，判断用户是否为活体、真人
+根据提示做出相应的活体动作，SDK 实时采集动态信息，判断用户是否为活体、真人。在黑灰产对抗激烈，“AI换脸”频发的场景下，活体检测SDK同时也集成了
+**风控设备环境检测能力，能够有效拦截摄像头被外部流注入的情况，同时独有的人脸鉴伪技术也能很好的识别合成脸攻击**
+
+> <span style="color: red;">⚠️ 接入活体SDK注意事项：</span>
+>
+> 1. **本地手动依赖，默认提供了活体检测、风控设备环境检测能力（推荐）**
+> 2. **远程仓库依赖，仅集成了基础活体检测，不具备环境风险感知能力，如果您对SDK体积比较敏感，可以这种方式**
+> 3. **如果您的产品服务的用户主要在海外，请联系技术支持提供海外专属技术方案，耗时更低**
+> 4. <span style="color: red; font-weight: bold;">若您在易盾后台需要开启RGB活体或远近空间活体功能，务必需要接入方实现相关UI的配合，详细参考[Demo](https://github.com/yidun/alive-detected-android-demo/tree/master/app)，否则可能导致对应动作检测触发失败导致流程阻塞。</span>
 
 ## 兼容性
 | 条目        | 说明                                                                      |
@@ -7,15 +14,51 @@
 | 适配版本    | minSdkVersion 21 及以上版本                                                 |
 | cpu 架构    | 内部提供了 armeabi-v7a 和 arm64-v8a 两种 so ，对于不兼容 arm 的 x86 机型不适配 |
 
-## 注意事项
-<font color=red>***1.和其他易盾产品一起使用需要考虑版本兼容性，若同时接多个易盾sdk，需要测试回归下是否有异常***</font></br>
-<font color=red>***2.开启RGB活体或远近空间活体需要接入方注意ui的配合，详细参考demo***</font>
-
 ## 资源引入
 
-### 远程仓库依赖(推荐)
-从 2.2.2 版本开始，提供远程依赖的方式，本地依赖的方式逐步淘汰。本地依赖集成替换为远程依赖请先去除干净本地包，避免重复依赖冲突
+### 本地手动依赖(推荐)
 
+#### 获取 SDK
+
+从易盾后台下载活体检测相关 sdk 的 aar 包 
+
+#### SDK模块介绍
+
+| **模块名称**            | **功能说明**   | **支持裁剪** | **SDK包体积** | **编译后体积增量** |
+|---------------------|------------| ----------- |------------| ------------------ |
+| livedetect-xxx.aar  | 活体人脸检测     | 不可裁剪     | 3.7MB      | 3.8MB             |
+| crashreport-xxx.aar | 活体人脸检测异常上报 | 不可裁剪      | 172KB      | 173KB            |
+| base-core.aar | 活体人脸检测基本库 | 不可裁剪      | 34KB      | 35KB             |
+| HTProtectLib-xxx.aar | 风控设备环境检测     | 可裁剪       | 6.1MB      | 6.4MB             |
+
+#### 添加 aar 包依赖
+将获取到的 aar 文件拷贝到对应 module 的 libs 文件夹下（如没有该目录需新建），然后在 build.gradle 文件中增加如下代码
+
+```
+android{
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    } 
+}    
+
+dependencies {
+    implementation(name:'livedetect-xxx', ext: 'aar')      
+    implementation(name: 'crashreport-xxx', ext: 'aar')
+    implementation(name: 'base-core-xxx', ext: 'aar')  
+	implementation(name: 'HTProtectLib-xxx', ext: 'aar')
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'    //若项目中原本存在无需添加        
+    implementation 'com.google.code.gson:gson:2.8.6'      //若项目中原本存在无需添加          
+}
+```
+
+#### SDK包裁剪说明
+如果您对 SDK 体积比较敏感，可以不集成 HTProtectLib-xxx.aar 包，但是这意味着您放弃了风控设备环境检测能力
+
+### 远程仓库依赖
+
+#### 获取 SDK
 确认 Project 根目录的 build.gradle 中配置了 mavenCentral 支持
 
 ```
@@ -35,17 +78,13 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.3.8.1'
+implementation 'io.github.yidun:livedetect:3.3.8'
 ```
-### 本地手动依赖
 
-#### 获取 SDK 
+#### 集成风控能力
+如果需要在活体检测过程中检测设备环境，那需要额外接入风控 SDK，风控 SDK 仅提供本地依赖的方式
 
-从易盾官网下载活体检测 sdk 的 aar 包 [包地址](https://support.dun.163.com/documents/391676076156063744?docId=391718656914821120)
-
-#### 添加 aar 包依赖
-
-将获取到的 aar 文件拷贝到对应 module 的 libs 文件夹下（如没有该目录需新建），然后在 build.gradle 文件中增加如下代码
+将易盾后台获取到的 aar 文件拷贝到对应 module 的 libs 文件夹下（如没有该目录需新建），然后在 build.gradle 文件中增加如下代码
 
 ```
 android{
@@ -57,11 +96,7 @@ android{
 }    
 
 dependencies {
-    implementation(name:'livedetect', ext: 'aar')      
-    implementation(name: 'crashreport', ext: 'aar')
-    implementation(name: 'base-core', ext: 'aar')  
-    implementation 'com.squareup.okhttp3:okhttp:4.9.2'    //若项目中原本存在无需添加        
-    implementation 'com.google.code.gson:gson:2.8.6'      //若项目中原本存在无需添加          
+	implementation(name: 'HTProtectLib-xxx', ext: 'aar')
 }
 ```
 
@@ -73,7 +108,7 @@ dependencies {
         doNotStrip "/armeabi-v7a/libalive_detected.so"
     }
 ```
-2. 如果同时使用易盾的活体检测和身份证OCR SDK，请务必先引用OCR SDK； 遇到so冲突，请用以下方式解决
+2. 如果同时使用易盾的活体检测和身份证 ocr sdk，请务必先引用 ocr sdk； 遇到 so 冲突，请用以下方式解决
 
 ```
 packagingOptions {
@@ -92,10 +127,28 @@ SDK 依赖如下权限
 <uses-permission android:name="android.permission.CAMERA" />
 ```
 
-其中 CAMERA 权限是隐私权限，Android 6.0 及以上需要动态申请。使用前务必先动态申请权限
+CAMERA 权限属于隐私权限，Android 6.0 及以上版本需要在使用前动态申请。
 
 ```
-ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
+ActivityCompat.requestPermissions(
+        this,
+        new String[]{
+                Manifest.permission.CAMERA
+        },
+        0
+);
+```
+
+### 申明与其他应用交互的意图范畴
+
+在 Manifest 配置文件的权限配置下方添加如下配置
+
+```
+ <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent>
+ </queries>
 ```
 
 ### 混淆配置
@@ -108,6 +161,8 @@ ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}
 -dontwarn com.netease.nis.alivedetected.**
 -keep class com.netease.cloud.nos.yidun.**{*;}
 -dontwarn com.netease.cloud.nos.yidun.**
+-keep class com.netease.htprotect.**{*;}
+-keep class com.netease.mobsec.**{*;}
 ```
 
 ## 快速调用示例
@@ -178,6 +233,11 @@ public class DemoActivity extends AppCompatActivity {
             @Override
             public void onOverTime() {
 
+            }
+
+            @Override
+            public void onBackgroundColor(int color) {
+                // RGB 活体模式下，根据 SDK 返回的颜色值更新检测页面背景颜色
             }
         });
         aliveDetector.startDetect();
@@ -295,7 +355,7 @@ public interface DetectedListener {
      * 活体检测过程中出现错误时回调
      *
      * @param code 错误码
-     * 1：sdk内部异常 2：服务端返回数据异常 3：打开相机失败
+     * 1：sdk内部异常 2：服务端返回数据异常 3：上传图片异常
      * @param msg  出错原因
      */
     void onError(int code, String msg, String token);
@@ -306,28 +366,37 @@ public interface DetectedListener {
     void onOverTime();
 
     /**
-     * @param code 颜色十六进制值
-     * RGB活体颜色值回调，请根据此颜色值闪屏
+     * RGB 活体检测背景颜色变化回调
+     *
+     * @param color SDK 返回的背景颜色值
      */
     void onBackgroundColor(int color);
 
-     /**
-     * @param direction 方向 0：由近到远 1：由远到近
+    /**
      * 远近空间活体配置回调
+     *
+     * @param direction 方向 0：由近到远 1：由远到近
      */
     void onSpaceLiveness(int direction);
 
-     /**
-     * @param actionType 当前类型
-     * ActionType.ACTION_PASSED：远近空间活体通过 ActionType.ACTION_SPACE_NEAR：近 ActionType.ACTION_SPACE_FAR：远  
-     * @param stateTip 提示词
-     * 总共五种情况 请略微靠近屏幕、保持不动、请略微远离屏幕、切换阶段、动作成功
-     * @param code 状态码
-     * 0：保持不动 100：切换阶段 200：动作成功 7：请略微靠近屏幕 8：请略微远离屏幕
+    /**
+     * 远近空间活体状态变化回调
+     *
+     * @param actionType 当前类型，ActionType.ACTION_PASSED：远近空间活体通过、ActionType.ACTION_SPACE_NEAR：近、ActionType.ACTION_SPACE_FAR：远
+     * @param stateTip 提示词，总共五种情况：请略微靠近屏幕、保持不动、请略微远离屏幕、切换阶段、动作成功
+     * @param code 状态码 0：保持不动 100：切换阶段 200：动作成功 7：请略微靠近屏幕 8：请略微远离屏幕
      */
     void onSpaceStateTipChanged(ActionType actionType, String stateTip, int code);
 }
 ```
+
+#### onBackgroundColor 回调说明
+
+RGB 活体模式会通过该回调返回检测页面需要展示的背景颜色。业务方收到回调后，应根据 `color` 更新活体检测页面的背景颜色。无 RGB 需求无需额外处理该回调。
+
+#### onSpaceLiveness、onSpaceStateTipChanged 回调说明
+
+空间活体会通过这两个回调返回当前的动作提示。业务方收到回调后，应根据提示做相对应的提示支持。无空间活体需求无需额外处理该回调。
 
 ### 4. 开始活体检测
 
