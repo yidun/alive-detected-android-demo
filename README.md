@@ -390,14 +390,6 @@ public interface DetectedListener {
 }
 ```
 
-#### onBackgroundColor 回调说明
-
-RGB 活体模式会通过该回调返回检测页面需要展示的背景颜色。业务方收到回调后，应根据 `color` 更新活体检测页面的背景颜色。无 RGB 需求无需额外处理该回调。
-
-#### onSpaceLiveness、onSpaceStateTipChanged 回调说明
-
-空间活体会通过这两个回调返回当前的动作提示。业务方收到回调后，应根据提示做相对应的提示支持。无空间活体需求无需额外处理该回调。
-
 ### 4. 开始活体检测
 
 代码添加在 init 之后调用
