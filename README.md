@@ -78,7 +78,7 @@ allprojects {
 在对应 module 的 build.gradle 中添加依赖
 
 ```
-implementation 'io.github.yidun:livedetect:3.3.8'
+implementation 'io.github.yidun:livedetect:3.3.9'
 ```
 
 #### 集成风控能力
